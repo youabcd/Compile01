@@ -338,6 +338,7 @@ public final class Analyser {
                 instructions.add(new Instruction(Operation.MUL));
             }
             else{
+                nextIf(TokenType.Div);
                 analyseFactor();
                 instructions.add(new Instruction(Operation.DIV));
             }
