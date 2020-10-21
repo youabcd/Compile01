@@ -239,7 +239,7 @@ public final class Analyser {
 
             //添加至符号表 对栈进行操作
             addSymbol(nameToken.getValueString(),true,true,nameToken.getStartPos());
-            instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(),nameToken.getStartPos())));
+            //instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(),nameToken.getStartPos())));
         }
     }
 
@@ -254,7 +254,7 @@ public final class Analyser {
                 analyseExpression();
                 expect(TokenType.Semicolon);
                 declareSymbol(nameToken.getValueString(),nameToken.getStartPos());
-                instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(),nameToken.getStartPos())));
+                //instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(),nameToken.getStartPos())));
             }
             else{
                 expect(TokenType.Semicolon);
