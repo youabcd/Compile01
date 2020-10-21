@@ -214,7 +214,8 @@ public final class Analyser {
             } else if (check(TokenType.Ident)) {
                 analyseStatementSequence();
             } else {
-                throw new Error("Not implemented");
+                //throw new Error("Not implemented");
+                break;
             }
         }
     }
