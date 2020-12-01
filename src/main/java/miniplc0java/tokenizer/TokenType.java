@@ -7,14 +7,20 @@ public enum TokenType {
     Uint,
     /** 标识符 */
     Ident,
-    /** Begin */
+    /** fn */
     Begin,
-    /** End */
+    /** let */
     End,
-    /** Var */
+    /** as */
     Var,
     /** Const */
     Const,
+    /* while */
+    /* if */
+    /* else */
+    /* return */
+    /* break */
+    /* continue */
     /** Print */
     Print,
     /** 加号 +*/
