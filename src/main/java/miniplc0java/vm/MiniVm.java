@@ -65,12 +65,12 @@ public class MiniVm {
                 throw new Error("Illegal instruction");
             }
             case LIT: {//压栈至栈顶
-                push(inst.getX());
+                //push(inst.getX());
             }
                 break;
             case LOD: {//找到栈内的值再push到栈顶
-                var x = stack.get(inst.getX());
-                push(x);
+               // var x = stack.get(inst.getX());
+                //push(x);
             }
                 break;
             case MUL: {
@@ -80,8 +80,8 @@ public class MiniVm {
             }
                 break;
             case STO: {//pop栈顶，将值赋给栈内某个位置
-                var x = pop();
-                stack.set(inst.getX(), x);
+                //var x = pop();
+                //stack.set(inst.getX(), x);
             }
                 break;
             case SUB: {

@@ -1,4 +1,4 @@
-package miniplc0java.tokenizer;
+package miniplc0java.instruction;
 
 import miniplc0java.error.AnalyzeError;
 import miniplc0java.error.CompileError;
@@ -17,5 +17,6 @@ import java.util.*;
 public class FunctionList {
     private String funcName;//函数名
     private String funcType;//函数返回值类别
-    private String[] funcParams;//函数传入值
+    private ArrayList<Token> funcParams=new ArrayList<Token>();//函数传入值
+
 }

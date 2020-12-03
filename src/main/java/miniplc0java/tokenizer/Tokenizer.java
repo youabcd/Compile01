@@ -255,7 +255,7 @@ public class Tokenizer {
                         it.nextChar();
                     }
                     it.nextChar();
-                    return null;
+                    return nextToken();
                 }
                 return new Token(TokenType.Div, '/', it.previousPos(), it.currentPos());
 

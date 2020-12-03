@@ -1,5 +1,0 @@
-Line: 0 Column: 0 Type: Identifier Value: a
-Line: 0 Column: 2 Type: Assign Value: =
-Line: 0 Column: 2 Type: Double Value: 1.0E
-Line: 0 Column: 7 Type: MinusSign Value: -
-Line: 0 Column: 7 Type: UnsignedInteger Value: 9

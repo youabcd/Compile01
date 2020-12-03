@@ -1,1 +1,4 @@
-a=1.0E-9
+// 常量不能被修改
+let i: int;
+//let j: int = 1;
+//const k: double = 20.0;

@@ -55,6 +55,8 @@ public class Instruction {
     @Override
     public String toString() {
         switch (this.opt) {
+            case push://压栈
+            case store64://将栈顶元素往具体位置存贮
             case ADD:
             case DIV:
             case ILL:

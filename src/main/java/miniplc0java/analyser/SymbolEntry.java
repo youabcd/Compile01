@@ -3,6 +3,7 @@ package miniplc0java.analyser;
 public class SymbolEntry {
     boolean isConstant;
     boolean isInitialized;
+    String type;
     int stackOffset;
 
     /**
@@ -10,9 +11,10 @@ public class SymbolEntry {
      * @param isDeclared
      * @param stackOffset
      */
-    public SymbolEntry(boolean isConstant, boolean isDeclared, int stackOffset) {
+    public SymbolEntry(boolean isConstant, boolean isDeclared,String type, int stackOffset) {
         this.isConstant = isConstant;
         this.isInitialized = isDeclared;
+        this.type=type;
         this.stackOffset = stackOffset;
     }
 
@@ -37,6 +39,8 @@ public class SymbolEntry {
         return isInitialized;
     }
 
+    public String Type(){return type;}
+
     /**
      * @param isConstant the isConstant to set
      */
@@ -51,6 +55,7 @@ public class SymbolEntry {
         this.isInitialized = isInitialized;
     }
 
+    public void setType(String type){ this.type=type; }
     /**
      * @param stackOffset the stackOffset to set
      */
