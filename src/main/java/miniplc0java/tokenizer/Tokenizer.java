@@ -219,9 +219,13 @@ public class Tokenizer {
             Token k10=new Token(TokenType.Continue,"continue",ptrstart,it.currentPos());
             return k10;
         }
-        else{
-            Token k11=new Token(TokenType.Ident,a,ptrstart,it.currentPos());
+        else if(a.equals("int")||a.equals("double")||a.equals("void")){
+            Token k11=new Token(TokenType.Ty,a,ptrstart,it.currentPos());
             return k11;
+        }
+        else{
+            Token k12=new Token(TokenType.Ident,a,ptrstart,it.currentPos());
+            return k12;
         }
         //
         // Token 的 Value 应填写标识符或关键字的字符串

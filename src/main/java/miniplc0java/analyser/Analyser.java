@@ -210,6 +210,14 @@ public final class Analyser {
     | literal_expr
     | ident_expr
     | group_expr*/
+    private void AnalyseAssign() throws CompileError{
+        AnalyseCmp();
+        while(check(TokenType.Assign)){
+            next();
+            AnalyseCmp();
+            instructions.add(new Instruction(Operation.ASSIGN));
+        }
+    }
     private void AnalyseCmp() throws CompileError{
         AnalyseExpression();
         while(check(TokenType.Gt)||check(TokenType.Lt)||check(TokenType.Ge)||check(TokenType.Le)||check(TokenType.Eq)||check(TokenType.Neq)){
@@ -252,10 +260,10 @@ public final class Analyser {
         }
     }
 
-    private void AnalyseItem() throws CompileError {//TODO 项
+    private void AnalyseItem() throws CompileError {
         //<项>::=<因子>{(*|/)<因子>}
         AnalyseAs();
-        while(check(TokenType.Mult)==true||check(TokenType.Div)==true){
+        while(check(TokenType.Mult)||check(TokenType.Div)){
             if(nextIf(TokenType.Mult)!=null){
                 AnalyseAs();
                 instructions.add(new Instruction(Operation.MUL));
@@ -274,7 +282,7 @@ public final class Analyser {
         while(check(TokenType.As)){
             next();
             Token t=next();
-            if(t.getValueString()=="int"){
+            if(t.getValueString().equals("int")){
                 instructions.add(new Instruction(Operation.AS1));
             }
             else{
@@ -283,7 +291,7 @@ public final class Analyser {
         }
     }
 
-    private void AnalyseFactor() throws CompileError {//TODO 因子
+    private void AnalyseFactor() throws CompileError {
         //<因子>::=Ident|Uint|(<表达式>)
         boolean negate;
         if (nextIf(TokenType.Minus) != null) {//负数显示为0-(Uint|Ident|<***>)
@@ -298,6 +306,16 @@ public final class Analyser {
         if (check(TokenType.Ident)) {
             // 调用相应的处理函数
             var a=expect(TokenType.Ident);
+            if(check(TokenType.LParen)){
+                next();
+                AnalyseAssign();
+                while(check(TokenType.Comma)){
+                    next();
+                    AnalyseAssign();
+                }
+                expect(TokenType.RParen);
+                //TODO
+            }
             instructions.add(new Instruction(Operation.LOD,getOffset(a.getValueString(),a.getStartPos())));
         }
         else if (check(TokenType.Uint)) {
@@ -310,10 +328,14 @@ public final class Analyser {
             double x=Double.parseDouble(b.getValue().toString());
             instructions.add(new Instruction(Operation.LIT,new Double(x).longValue()));
         }
+        else if(check(TokenType.Str)){
+            var b=expect(TokenType.Str);
+            //TODO
+        }
         else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
             expect(TokenType.LParen);
-            AnalyseExpression();
+            AnalyseAssign();
             expect(TokenType.RParen);
         }
         else {
@@ -360,8 +382,95 @@ public final class Analyser {
             AnalyseEmpty();
         }
         else{
+            AnalyseAssign();
+        }
+    }
+
+    private void AnalyseLet_decl_stmt() throws CompileError{//let声明
+        expect(TokenType.Let);
+        Token k=expect(TokenType.Ident);
+        expect(TokenType.Colon);
+        Token t=expect(TokenType.Ty);
+        if(t.getValueString().equals("int")){
+            if(check(TokenType.Assign)){
+                AnalyseAssign();
+            }
+        }
+        else if(t.getValueString().equals("double")){
+            if(check(TokenType.Assign)){
+                AnalyseAssign();
+            }
+        }
+        else{
+//TODO
+        }
+        expect(TokenType.Semicolon);
+    }
+
+    private void AnalyseConst_decl_stmt() throws CompileError{
+        expect(TokenType.Const);
+        Token k=expect(TokenType.Ident);
+        expect(TokenType.Colon);
+        Token t=expect(TokenType.Ty);
+        if(t.getValueString().equals("int")){
+            if(check(TokenType.Assign)){
+                AnalyseAssign();
+            }
+        }
+        else if(t.getValueString().equals("double")){
+            if(check(TokenType.Assign)){
+                AnalyseAssign();
+            }
+        }
+        else{
+
+        }
+        expect(TokenType.Semicolon);
+    }
+
+    private void AnalyseIf() throws CompileError{
+        expect(TokenType.If);
+        AnalyseAssign();
+        AnalyseBlock();
+        if(check(TokenType.Else)){
+            next();
+            while (check(TokenType.If)){
+                expect(TokenType.If);
+                AnalyseAssign();
+                AnalyseBlock();
+                if (!check(TokenType.Else)){
+                    break;
+                }
+                else{
+                    next();
+                }
+            }
+            AnalyseBlock();
+        }
+    }
+
+    private void AnalyseWhile() throws CompileError{
+        expect(TokenType.While);
+        AnalyseAssign();
+        AnalyseBlock();
+    }
+
+    private void AnalyseReturn() throws CompileError{
+        expect(TokenType.Return);
+        AnalyseAssign();
+        expect(TokenType.Semicolon);
+    }
+
+    private void AnalyseBlock() throws CompileError{
+        expect(TokenType.Lbrace);
+        while(!check(TokenType.Rbrace)){
             AnalyseExpression();
         }
+        expect(TokenType.Rbrace);
+    }
+
+    private void AnalyseEmpty() throws CompileError{
+        expect(TokenType.Semicolon);
     }
 
     private void analyseMain() throws CompileError {
@@ -371,9 +480,8 @@ public final class Analyser {
                 analyseConstantDeclaration();
             } else if (check(TokenType.As)) {
                 analyseVariableDeclaration();
-            } else if (check(TokenType.If)) {
-                analyseOutputStatement();
-            } else if (check(TokenType.Ident)) {
+            }
+            else if (check(TokenType.Ident)) {
                 analyseStatementSequence();
             } else {
                 //throw new Error("Not implemented");
@@ -413,7 +521,7 @@ public final class Analyser {
 
             if(check(TokenType.Assign)){
                 expect(TokenType.Assign);
-                analyseExpression();
+                AnalyseExpression();
                 expect(TokenType.Semicolon);
                 declareSymbol(nameToken.getValueString(),nameToken.getStartPos());
                 //instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(),nameToken.getStartPos())));
@@ -441,14 +549,14 @@ public final class Analyser {
 
     private void analyseConstantExpression() throws CompileError {//TODO 常量表达式
         //<常量表达式>::=<项>{(+|-)<项>}
-        analyseItem();
+        AnalyseItem();
         while(check(TokenType.Minus)==true||check(TokenType.Plus)==true){
             if(nextIf(TokenType.Plus)!=null){
-                analyseItem();
+                AnalyseItem();
                 instructions.add(new Instruction(Operation.ADD));
             }
             else{
-                analyseItem();
+                AnalyseItem();
                 instructions.add(new Instruction(Operation.SUB));
             }
         }
@@ -467,13 +575,5 @@ public final class Analyser {
         //throw new Error("Not implemented");
     }
 
-    private void analyseOutputStatement() throws CompileError {//输出
-        expect(TokenType.If);
-        expect(TokenType.LParen);
-        analyseExpression();
-        expect(TokenType.RParen);
-        expect(TokenType.Semicolon);
-        instructions.add(new Instruction(Operation.WRT));
-    }
 
 }

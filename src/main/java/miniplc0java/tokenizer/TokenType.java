@@ -75,6 +75,8 @@ public enum TokenType {
     Semicolon,
     /** 注释 // */
     Comment,
+    /* 系统 */
+    Ty,
     EOF;
 
     @Override
@@ -154,6 +156,8 @@ public enum TokenType {
                 return "Semicolon";
             case Comment:
                 return "Comment";
+            case Ty:
+                return "Ty";
             case EOF:
                 return "EOF";
             default:
