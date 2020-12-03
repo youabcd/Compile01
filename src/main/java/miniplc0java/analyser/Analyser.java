@@ -195,7 +195,7 @@ public final class Analyser {
         // 'begin'
         expect(TokenType.Fn);
 
-        analyseMain();
+        AnalyseExpression();
 
         // 'end'
         expect(TokenType.EOF);
@@ -473,107 +473,33 @@ public final class Analyser {
         expect(TokenType.Semicolon);
     }
 
-    private void analyseMain() throws CompileError {
-        //TODO 主函数
-        while(check(TokenType.Rbrace)==false&&check(TokenType.EOF)==false) {
-            if (check(TokenType.Const)) {
-                analyseConstantDeclaration();
-            } else if (check(TokenType.As)) {
-                analyseVariableDeclaration();
+
+    private void AnalyseFunction() throws CompileError{
+        expect(TokenType.Fn);
+        Token ident=expect(TokenType.Ident);
+        expect(TokenType.LParen);
+        while (check(TokenType.RParen)){
+            AnalyseFunctionParam();
+            if(check(TokenType.Comma)){
+                next();
             }
-            else if (check(TokenType.Ident)) {
-                analyseStatementSequence();
-            } else {
-                //throw new Error("Not implemented");
+            else{
                 break;
             }
         }
+        expect(TokenType.RParen);
+        expect(TokenType.Arrow);
+        Token ty=expect(TokenType.Ty);
+        AnalyseBlock();
     }
 
-    private void analyseConstantDeclaration() throws CompileError {//TODO 常量声明
-        // 示例函数，示例如何解析常量声明
-        // 如果下一个 token 是 const 就继续
-        //<常量声明>::=const Ident=<常表达式>;
-        while (nextIf(TokenType.Const) != null) {
-            // 变量名
-            var nameToken = expect(TokenType.Ident);
-
-            // 等于号
-            expect(TokenType.Assign);
-
-            // 常表达式
-            analyseConstantExpression();
-
-            // 分号
-            expect(TokenType.Semicolon);
-
-            //添加至符号表 对栈进行操作
-            addSymbol(nameToken.getValueString(),true,true,nameToken.getStartPos());
-            //instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(),nameToken.getStartPos())));
+    private void AnalyseFunctionParam() throws CompileError{
+        if(check(TokenType.Const)){
+            next();
         }
+        Token ident=expect(TokenType.Ident);
+        expect(TokenType.Colon);
+        Token ty=expect(TokenType.Ty);
     }
-
-    private void analyseVariableDeclaration() throws CompileError {//TODO 变量声明
-        //<变量声明>::=var Ident=<表达式>;
-        while (nextIf(TokenType.As) != null) {
-            var nameToken = expect(TokenType.Ident);
-            addSymbol(nameToken.getValueString(),false,false,nameToken.getStartPos());
-
-            if(check(TokenType.Assign)){
-                expect(TokenType.Assign);
-                AnalyseExpression();
-                expect(TokenType.Semicolon);
-                declareSymbol(nameToken.getValueString(),nameToken.getStartPos());
-                //instructions.add(new Instruction(Operation.STO,getOffset(nameToken.getValueString(),nameToken.getStartPos())));
-            }
-            else{
-                expect(TokenType.Semicolon);
-                instructions.add(new Instruction(Operation.LIT,0));
-            }
-
-        }
-        //throw new Error("Not implemented");
-    }
-
-    private void analyseStatementSequence() throws CompileError {//TODO 语句序列
-        //<语句序列>::={<语句>}
-        analyseStatement();
-        //throw new Error("Not implemented");
-    }
-
-    private void analyseStatement() throws CompileError {//TODO 语句
-        //<语句>::={<赋值语句>}
-        analyseAssignmentStatement();
-        //throw new Error("Not implemented");
-    }
-
-    private void analyseConstantExpression() throws CompileError {//TODO 常量表达式
-        //<常量表达式>::=<项>{(+|-)<项>}
-        AnalyseItem();
-        while(check(TokenType.Minus)==true||check(TokenType.Plus)==true){
-            if(nextIf(TokenType.Plus)!=null){
-                AnalyseItem();
-                instructions.add(new Instruction(Operation.ADD));
-            }
-            else{
-                AnalyseItem();
-                instructions.add(new Instruction(Operation.SUB));
-            }
-        }
-        //throw new Error("Not implemented");
-    }
-
-
-
-    private void analyseAssignmentStatement() throws CompileError {//TODO 赋值
-        //<赋值语句>::=<Ident>=<表达式>
-        var a=expect(TokenType.Ident);
-        expect(TokenType.Assign);
-        AnalyseExpression();
-        expect(TokenType.Semicolon);
-        instructions.add(new Instruction(Operation.STO, getOffset(a.getValueString(), a.getStartPos())));
-        //throw new Error("Not implemented");
-    }
-
 
 }

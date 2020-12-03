@@ -251,7 +251,11 @@ public class Tokenizer {
             case '/':
                 if(it.peekChar()=='/'){
                     it.nextChar();
-                    return new Token(TokenType.Comment, "//", ptrstart, it.currentPos());
+                    while(it.peekChar()!='\n'){
+                        it.nextChar();
+                    }
+                    it.nextChar();
+                    return null;
                 }
                 return new Token(TokenType.Div, '/', it.previousPos(), it.currentPos());
 
