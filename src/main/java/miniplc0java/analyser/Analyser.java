@@ -243,6 +243,10 @@ public final class Analyser {
         type=AnalyseCmp();
         if(check(TokenType.Assign)){
             if(t.getTokenType()==TokenType.Ident) {
+                instructions.remove(instructions.size()-1);
+                if(isConstant(t.getValueString(),t.getStartPos())&&isInitialized(t.getValueString(),t.getStartPos())){
+                    throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
+                }
                 next();
                 type1 = AnalyseCmp();
                 if (!type.equals(type1)) {
@@ -260,25 +264,25 @@ public final class Analyser {
     private String AnalyseCmp() throws CompileError{
         String type="";
         type=AnalyseExpression();
-        while(check(TokenType.Gt)||check(TokenType.Lt)||check(TokenType.Ge)||check(TokenType.Le)||check(TokenType.Eq)||check(TokenType.Neq)){
-            next();
+        if(check(TokenType.Gt)||check(TokenType.Lt)||check(TokenType.Ge)||check(TokenType.Le)||check(TokenType.Eq)||check(TokenType.Neq)){
+            Token t=next();
             type=AnalyseExpression();
-            if(check(TokenType.Gt)){
+            if(t.getTokenType()==TokenType.Gt){
                 instructions.add(new Instruction(Operation.GT));
             }
-            else if(check(TokenType.Lt)){
+            else if(t.getTokenType()==TokenType.Lt){
                 instructions.add(new Instruction(Operation.LT));
             }
-            else if(check(TokenType.Ge)){
+            else if(t.getTokenType()==TokenType.Ge){
                 instructions.add(new Instruction(Operation.GE));
             }
-            else if(check(TokenType.Le)){
+            else if(t.getTokenType()==TokenType.Le){
                 instructions.add(new Instruction(Operation.LE));
             }
-            else if(check(TokenType.Eq)){
+            else if(t.getTokenType()==TokenType.Eq){
                 instructions.add(new Instruction(Operation.EQ));
             }
-            else if(check(TokenType.Neq)){
+            else if(t.getTokenType()==TokenType.Neq){
                 instructions.add(new Instruction(Operation.NEQ));
             }
         }
@@ -324,7 +328,7 @@ public final class Analyser {
     private String AnalyseAs() throws CompileError{
         String type="";
         type=AnalyseFactor();
-        while(check(TokenType.As)){
+        if(check(TokenType.As)){
             next();
             Token t=next();
             if(t.getValueString().equals("int")){
@@ -347,7 +351,8 @@ public final class Analyser {
             negate = true;
             // 计算结果需要被 0 减
             instructions.add(new Instruction(Operation.LIT, 0));
-        } else {//防止a=+1;此类情况
+        }
+        else {//防止a=+1;此类情况
             nextIf(TokenType.Plus);
             negate = false;
         }
@@ -366,13 +371,8 @@ public final class Analyser {
                 //TODO
             }
             else {
-                if(isConstant(a.getValueString(),a.getStartPos())&&isInitialized(a.getValueString(),a.getStartPos())){
-                    throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
-                }
-                else {
-                    type = whichType(a.getValueString(), a.getStartPos());
-                    instructions.add(new Instruction(Operation.LOD, getOffset(a.getValueString(), a.getStartPos())));
-                }
+                type = whichType(a.getValueString(), a.getStartPos());
+                instructions.add(new Instruction(Operation.LOD, getOffset(a.getValueString(), a.getStartPos())));
             }
         }
         else if (check(TokenType.Uint)) {
@@ -464,21 +464,27 @@ public final class Analyser {
                     throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
                 }
             }
-            addSymbol(k.getValueString(), isInitialized, false, "int", k.getStartPos());//往符号表内添加数据
-            //instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
+            else {
+                addSymbol(k.getValueString(), isInitialized, false, "int", k.getStartPos());//往符号表内添加数据
+                //instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
+            }
         }
         else if(t.getValueString().equals("double")){
             if(check(TokenType.Assign)){
                 next();
                 type=AnalyseAssign();
                 isInitialized=true;
+                if(type=="double") {
+                    addSymbol(k.getValueString(), isInitialized, false, "double", k.getStartPos());//往符号表内添加数据
+                    instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
+                }
+                else{
+                    throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
+                }
             }
-            if(type=="double") {
+            else {
                 addSymbol(k.getValueString(), isInitialized, false, "double", k.getStartPos());//往符号表内添加数据
-                instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
-            }
-            else{
-                throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
+                //instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
             }
         }
         else{
@@ -523,28 +529,49 @@ public final class Analyser {
     private void AnalyseIf() throws CompileError{
         expect(TokenType.If);
         AnalyseAssign();
+        ArrayList<Integer> add=new ArrayList<Integer>();
+        ArrayList<Integer> nextAdd=new ArrayList<Integer>();
+        int k1=0;
+        add.add(instructions.size());
+        instructions.add(new Instruction(Operation.Jmp,0));
         AnalyseBlock();
         if(check(TokenType.Else)){
             next();
             while (check(TokenType.If)){
                 expect(TokenType.If);
+                nextAdd.add(instructions.size());
                 AnalyseAssign();
+                add.add(instructions.size());
+                instructions.add(new Instruction(Operation.Jmp,0));
                 AnalyseBlock();
                 if (!check(TokenType.Else)){
+                    k1=1;
                     break;
                 }
                 else{
                     next();
                 }
             }
-            AnalyseBlock();
+            nextAdd.add(instructions.size());
+            if(k1==0){
+                AnalyseBlock();
+            }
+            for(int i=0;i<add.size();i++){
+                instructions.set(add.get(i),new Instruction(Operation.Jmp,nextAdd.get(i)));
+            }
         }
     }
 
     private void AnalyseWhile() throws CompileError{
         expect(TokenType.While);
+        int begin=instructions.size();
         AnalyseAssign();
+        int add=instructions.size();
+        instructions.add(new Instruction(Operation.Jmp,0));
         AnalyseBlock();
+        instructions.add(new Instruction(Operation.Jmp,begin));
+        int end=instructions.size();
+        instructions.set(add,new Instruction(Operation.Jmp,end));
     }
 
     private void AnalyseReturn() throws CompileError{
@@ -556,7 +583,7 @@ public final class Analyser {
     private void AnalyseBlock() throws CompileError{
         expect(TokenType.Lbrace);
         while(!check(TokenType.Rbrace)){
-            AnalyseExpression();
+            AnalyseStatement();
         }
         expect(TokenType.Rbrace);
     }

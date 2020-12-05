@@ -1,0 +1,29 @@
+LIT 20
+store64
+LIT 10
+store64
+LIT 1
+store64
+LIT 1
+LIT 2
+ADD
+store64
+LOD 0
+LIT 0
+LT
+Jmp
+LIT 0
+store64
+LOD 0
+LIT 1
+LT
+Jmp
+LIT 1
+store64
+LIT 2
+store64
+LOD 1
+LIT 5
+LT
+Jmp
+Jmp

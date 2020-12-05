@@ -53,30 +53,101 @@ public class Tokenizer {
         StringBuffer uint=new StringBuffer("");
         while(Character.isDigit(it.peekChar())||it.peekChar()=='.'||it.peekChar()=='E'||it.peekChar()=='e'){
             if(it.peekChar()=='.'){
-                isD=1;
+                isD++;
             }
             if(it.peekChar()=='E'||it.peekChar()=='e'){
                 isE=1;
+                uint.append(it.nextChar());
+                if(it.peekChar()=='-'){
+                    uint.append(it.nextChar());
+                    while(Character.isDigit(it.peekChar())){
+                        uint.append(it.nextChar());
+                    }
+                    break;
+                }
             }
             uint.append(it.nextChar());
         }
         String uint1=new String(uint);
         if(isD==0) {
-            int a=Integer.parseInt(uint1);
-            return new Token(TokenType.Uint, a, ptrstart, it.currentPos());
+            if(isE==0) {
+                int a = Integer.parseInt(uint1);
+                return new Token(TokenType.Uint, a, ptrstart, it.currentPos());
+            }
+            else{
+                StringBuffer a=new StringBuffer(""),b=new StringBuffer("");
+                int k=0,isnegate=0;
+                for(int i=0;i<uint1.length();i++){
+                    if(uint1.charAt(i)=='E'||uint1.charAt(i)=='e'){
+                        k=1;
+                    }
+                    else if(uint1.charAt(i)=='-'){
+                        isnegate=1;
+                    }
+                    else {
+                        if (k == 0) {
+                            a.append(uint1.charAt(i));
+                        }
+                        else{
+                            b.append(uint1.charAt(i));
+                        }
+                    }
+                }
+                String a1=new String(a);
+                String b1=new String(b);
+                double a2=Double.parseDouble(a1);
+                double b2=Double.parseDouble(b1);
+                double x;
+                if(isnegate==0){
+                    x=a2*(Math.pow(10,b2));
+                }
+                else{
+                    x=a2*(Math.pow(0.1,b2));
+                }
+                return new Token(TokenType.Double, x, ptrstart, it.currentPos());
+            }
         }
-        else{
+        else if(isD==1){
             if(isE==0) {
                 double a = Double.parseDouble(uint1);
                 return new Token(TokenType.Double, a, ptrstart, it.currentPos());
             }
             else{
-                return new Token(TokenType.Double, uint1, ptrstart, it.currentPos());
+                StringBuffer a=new StringBuffer(""),b=new StringBuffer("");
+                int k=0,isnegate=0;
+                for(int i=0;i<uint1.length();i++){
+                    if(uint1.charAt(i)=='E'||uint1.charAt(i)=='e'){
+                        k=1;
+                    }
+                    else if(uint1.charAt(i)=='-'){
+                        isnegate=1;
+                    }
+                    else {
+                        if (k == 0) {
+                            a.append(uint1.charAt(i));
+                        }
+                        else{
+                            b.append(uint1.charAt(i));
+                        }
+                    }
+                }
+                String a1=new String(a);
+                String b1=new String(b);
+                double a2=Double.parseDouble(a1);
+                double b2=Double.parseDouble(b1);
+                double x;
+                if(isnegate==0){
+                    x=a2*(Math.pow(10,b2));
+                }
+                else{
+                    x=a2*(Math.pow(0.1,b2));
+                }
+                return new Token(TokenType.Double, x, ptrstart, it.currentPos());
             }
         }
-        //
-        // Token 的 Value 应填写数字的值
-        //throw new Error("Not implemented");
+        else{
+            throw new TokenizeError(ErrorCode.InvalidInput,ptrstart);
+        }
     }
 
     private Token lexString() throws TokenizeError{//判断是否为字符串

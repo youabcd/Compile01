@@ -50,15 +50,15 @@ public class MiniVm {
     private void RunStep(Instruction inst) {
         switch (inst.getOpt()) {
             case ADD: {//加栈顶的两位，push到栈顶
-                var a = pop();
-                var b = pop();
-                push(a + b);
+                //var a = pop();
+                //var b = pop();
+                //push(a + b);
             }
                 break;
             case DIV: {
-                var b = pop();
-                var a = pop();
-                push(a / b);
+                //var b = pop();
+                //var a = pop();
+                //push(a / b);
             }
                 break;
             case ILL: {//报错
@@ -69,14 +69,14 @@ public class MiniVm {
             }
                 break;
             case LOD: {//找到栈内的值再push到栈顶
-               // var x = stack.get(inst.getX());
+                //var x = stack.get(inst.getX());
                 //push(x);
             }
                 break;
             case MUL: {
-                var b = pop();
-                var a = pop();
-                push(a * b);
+                //var b = pop();
+                //var a = pop();
+                //push(a * b);
             }
                 break;
             case STO: {//pop栈顶，将值赋给栈内某个位置
@@ -85,15 +85,28 @@ public class MiniVm {
             }
                 break;
             case SUB: {
-                var b = pop();
-                var a = pop();
-                push(a - b);
+                //var b = pop();
+                //var a = pop();
+                //push(a - b);
             }
                 break;
             case WRT: {//输出
-                var b = pop();
-                out.printf("%d\n", b);
+               //var b = pop();
+                //out.printf("%d\n", b);
             }
+            case ASSIGN:{}
+            case pop:{}
+            case NEQ:{}
+            case Jmp:{}
+            case AS2:{}
+            case AS1:{}
+            case LT:{}
+            case LE:{}
+            case GT:{}
+            case GE:{}
+            case EQ:{}
+            case push:{}
+            case store64:{}
                 break;
             default:
                 break;

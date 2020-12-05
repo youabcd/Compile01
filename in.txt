@@ -1,4 +1,20 @@
-// 常量不能被修改
-let i: int;
-//let j: int = 1;
-//const k: double = 20.0;
+//let i: double=5e-2;
+let j: double;
+let b:int;
+const k: double= 20.0;
+const k1: int =10;
+j=1.0;
+b=1+2;
+if j<0{
+b=0;
+}
+else if j<1{
+b=1;
+}
+else {
+b=2;
+}
+while b<5 {
+//b=k1+5
+}
+//let a: double =2.0;

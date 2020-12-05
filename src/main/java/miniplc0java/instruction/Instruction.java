@@ -57,6 +57,17 @@ public class Instruction {
         switch (this.opt) {
             case push://压栈
             case store64://将栈顶元素往具体位置存贮
+            case EQ:
+            case GE:
+            case GT:
+            case LE:
+            case LT:
+            case AS1:
+            case AS2:
+            case Jmp:
+            case NEQ:
+            case pop:
+            case ASSIGN:
             case ADD:
             case DIV:
             case ILL:
