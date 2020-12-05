@@ -1,29 +1,35 @@
 LIT 20
-store64
+store64 2
 LIT 10
-store64
+store64 3
 LIT 1
-store64
+store64 0
 LIT 1
 LIT 2
-ADD
-store64
+ADD 0
+store64 1
 LOD 0
 LIT 0
-LT
-Jmp
+LT 0
+Jmp 17
 LIT 0
-store64
+store64 1
+Jmp 26
 LOD 0
 LIT 1
-LT
-Jmp
+LT 0
+Jmp 24
 LIT 1
-store64
+store64 1
+Jmp 26
 LIT 2
-store64
+store64 1
 LOD 1
 LIT 5
-LT
-Jmp
-Jmp
+LT 0
+Jmp 35
+LOD 3
+LIT 5
+ADD 0
+store64 1
+Jmp 26

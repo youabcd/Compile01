@@ -5,6 +5,7 @@ import miniplc0java.error.CompileError;
 import miniplc0java.error.ErrorCode;
 import miniplc0java.error.ExpectedTokenError;
 import miniplc0java.error.TokenizeError;
+import miniplc0java.instruction.FunctionList;
 import miniplc0java.instruction.Instruction;
 import miniplc0java.instruction.Operation;
 import miniplc0java.tokenizer.Token;
@@ -24,6 +25,7 @@ public final class Analyser {
 
     /** 符号表 */
     HashMap<String, SymbolEntry> symbolTable = new HashMap<>();
+    HashMap<String, FunctionList> funcTable=new HashMap<>();
 
     /** 下一个变量的栈偏移 */
     int nextOffset = 0;
@@ -127,6 +129,15 @@ public final class Analyser {
         }
         else {
             this.symbolTable.put(name, new SymbolEntry(isConstant, isInitialized, type, getNextVariableOffset()));
+        }
+    }
+
+    private void addFunc(String name,Pos curPos, String n1,String type,ArrayList<Token> funcParams) throws AnalyzeError {
+        if (this.symbolTable.get(name) != null) {
+            throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
+        }
+        else {
+            this.funcTable.put(name, new FunctionList(n1, type, funcParams));
         }
     }
 
@@ -289,8 +300,7 @@ public final class Analyser {
         return type;
     }
 
-    private String AnalyseExpression() throws CompileError {//
-        //<表达式>::=<项>{(+|-)<项>}
+    private String AnalyseExpression() throws CompileError {
         String type="";
         type=AnalyseItem();
         while(check(TokenType.Minus)||check(TokenType.Plus)){
@@ -531,10 +541,14 @@ public final class Analyser {
         AnalyseAssign();
         ArrayList<Integer> add=new ArrayList<Integer>();
         ArrayList<Integer> nextAdd=new ArrayList<Integer>();
+        ArrayList<Integer> end=new ArrayList<Integer>();
+        int end1;
         int k1=0;
         add.add(instructions.size());
         instructions.add(new Instruction(Operation.Jmp,0));
         AnalyseBlock();
+        end.add(instructions.size());
+        instructions.add(new Instruction(Operation.Jmp,0));
         if(check(TokenType.Else)){
             next();
             while (check(TokenType.If)){
@@ -544,6 +558,8 @@ public final class Analyser {
                 add.add(instructions.size());
                 instructions.add(new Instruction(Operation.Jmp,0));
                 AnalyseBlock();
+                end.add(instructions.size());
+                instructions.add(new Instruction(Operation.Jmp,0));
                 if (!check(TokenType.Else)){
                     k1=1;
                     break;
@@ -556,8 +572,12 @@ public final class Analyser {
             if(k1==0){
                 AnalyseBlock();
             }
+            end1=instructions.size();
             for(int i=0;i<add.size();i++){
                 instructions.set(add.get(i),new Instruction(Operation.Jmp,nextAdd.get(i)));
+            }
+            for(int i=0;i<end.size();i++){
+                instructions.set(end.get(i),new Instruction(Operation.Jmp,end1));
             }
         }
     }
@@ -596,9 +616,11 @@ public final class Analyser {
     private void AnalyseFunction() throws CompileError{
         expect(TokenType.Fn);
         Token ident=expect(TokenType.Ident);
+        addSymbol(ident.getValueString(),true,false,"Func",ident.getStartPos());
+        ArrayList<Token> token=new ArrayList<>();
         expect(TokenType.LParen);
-        while (check(TokenType.RParen)){
-            AnalyseFunctionParam();
+        while (!check(TokenType.RParen)){
+            token.add(AnalyseFunctionParam());
             if(check(TokenType.Comma)){
                 next();
             }
@@ -609,16 +631,17 @@ public final class Analyser {
         expect(TokenType.RParen);
         expect(TokenType.Arrow);
         Token ty=expect(TokenType.Ty);
+        addFunc(ident.getValueString(),ident.getStartPos(),ident.getValueString(),ty.getValueString(),token);
         AnalyseBlock();
     }
 
-    private void AnalyseFunctionParam() throws CompileError{
+    private Token AnalyseFunctionParam() throws CompileError{
         if(check(TokenType.Const)){
             next();
         }
         Token ident=expect(TokenType.Ident);
         expect(TokenType.Colon);
         Token ty=expect(TokenType.Ty);
+        return ident;
     }
-
 }

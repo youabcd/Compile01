@@ -65,6 +65,7 @@ public class Instruction {
             case AS1:
             case AS2:
             case Jmp:
+                return String.format("%s %s",this.opt,this.x);
             case NEQ:
             case pop:
             case ASSIGN:
@@ -74,7 +75,6 @@ public class Instruction {
             case MUL:
             case SUB:
             case WRT:
-                return String.format("%s", this.opt);
             case LIT:
             case LOD:
             case STO:

@@ -1,6 +1,9 @@
 //let i: double=5e-2;
 let j: double;
 let b:int;
+//fn func (f1:int,f2:int)->int{
+//return f1+f2;
+//}
 const k: double= 20.0;
 const k1: int =10;
 j=1.0;
@@ -15,6 +18,6 @@ else {
 b=2;
 }
 while b<5 {
-//b=k1+5
+b=k1+5
 }
 //let a: double =2.0;
