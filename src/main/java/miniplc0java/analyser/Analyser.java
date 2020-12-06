@@ -19,6 +19,7 @@ public final class Analyser {
 
     Tokenizer tokenizer;
     ArrayList<Instruction> instructions;
+    ArrayList<Token> temporaryTable;
 
     /** 当前偷看的 token */
     Token peekedToken = null;
@@ -132,13 +133,25 @@ public final class Analyser {
         }
     }
 
-    private void addFunc(String name,Pos curPos, String n1,String type,ArrayList<Token> funcParams) throws AnalyzeError {
-        if (this.symbolTable.get(name) != null) {
+    private void addFunc(String name,Pos curPos, String n1,String type,ArrayList<Token> funcParams, int begin,int end) throws AnalyzeError {
+        if (this.funcTable.get(name) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
         }
         else {
-            this.funcTable.put(name, new FunctionList(n1, type, funcParams));
+            this.funcTable.put(name, new FunctionList(n1, type, funcParams,begin,end));
         }
+    }
+
+    private int getFuncBegin(String name){
+        return this.funcTable.get(name).getBegin();
+    }
+
+    private int getFuncEnd(String name){
+        return this.funcTable.get(name).getEnd();
+    }
+
+    private void setFuncEnd(String name,int end){
+        this.funcTable.get(name).setEnd(end);
     }
 
     /**
@@ -253,7 +266,7 @@ public final class Analyser {
         Token t=peek();
         type=AnalyseCmp();
         if(check(TokenType.Assign)){
-            if(t.getTokenType()==TokenType.Ident) {
+            if(t.getTokenType()==TokenType.Ident){
                 instructions.remove(instructions.size()-1);
                 if(isConstant(t.getValueString(),t.getStartPos())&&isInitialized(t.getValueString(),t.getStartPos())){
                     throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
@@ -263,38 +276,47 @@ public final class Analyser {
                 if (!type.equals(type1)) {
                     throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                 } else {
-                    instructions.add(new Instruction(Operation.store64,getOffset(t.getValueString(),t.getStartPos())));
+                    instructions.add(new Instruction(Operation.Store64));
                 }
             }
             else{
                 throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
+            expect(TokenType.Semicolon);
         }
         return type;
     }
     private String AnalyseCmp() throws CompileError{
         String type="";
         type=AnalyseExpression();
-        if(check(TokenType.Gt)||check(TokenType.Lt)||check(TokenType.Ge)||check(TokenType.Le)||check(TokenType.Eq)||check(TokenType.Neq)){
-            Token t=next();
-            type=AnalyseExpression();
-            if(t.getTokenType()==TokenType.Gt){
-                instructions.add(new Instruction(Operation.GT));
+        if(check(TokenType.Gt)||check(TokenType.Lt)||check(TokenType.Ge)||check(TokenType.Le)||check(TokenType.Eq)||check(TokenType.Neq)) {
+            Token t = next();
+            String type1 = AnalyseExpression();
+            if (!type.equals(type1)) {
+                throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
-            else if(t.getTokenType()==TokenType.Lt){
-                instructions.add(new Instruction(Operation.LT));
+            if (type.equals("int")) {
+                instructions.add(new Instruction(Operation.CmpI));
             }
-            else if(t.getTokenType()==TokenType.Ge){
-                instructions.add(new Instruction(Operation.GE));
+            else if(type.equals("double")){
+                instructions.add(new Instruction(Operation.CmpF));
             }
-            else if(t.getTokenType()==TokenType.Le){
-                instructions.add(new Instruction(Operation.LE));
+            else {
+                throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
-            else if(t.getTokenType()==TokenType.Eq){
-                instructions.add(new Instruction(Operation.EQ));
-            }
-            else if(t.getTokenType()==TokenType.Neq){
-                instructions.add(new Instruction(Operation.NEQ));
+            if (t.getTokenType() == TokenType.Gt) {
+                instructions.add(new Instruction(Operation.SetGT));
+            } else if (t.getTokenType() == TokenType.Lt) {
+                instructions.add(new Instruction(Operation.SetLT));
+            } else if (t.getTokenType() == TokenType.Ge) {
+                instructions.add(new Instruction(Operation.SetLT));
+                instructions.add(new Instruction(Operation.Not));
+            } else if (t.getTokenType() == TokenType.Le) {
+                instructions.add(new Instruction(Operation.SetGT));
+                instructions.add(new Instruction(Operation.Not));
+            } else if (t.getTokenType() == TokenType.Eq) {
+                instructions.add(new Instruction(Operation.Not));
+            } else if (t.getTokenType() == TokenType.Neq) {
             }
         }
         return type;
@@ -304,14 +326,39 @@ public final class Analyser {
         String type="";
         type=AnalyseItem();
         while(check(TokenType.Minus)||check(TokenType.Plus)){
-            if(nextIf(TokenType.Plus)!=null) {
-                type=AnalyseItem();
-                instructions.add(new Instruction(Operation.ADD));
+            Token t=next();
+            if(type.equals("int")) {
+                if (t.getTokenType()==TokenType.Plus) {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.AddI));
+                } else {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.SubI));
+                }
+            }
+            else if(type.equals("double")) {
+                if (t.getTokenType()==TokenType.Plus) {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.AddF));
+                } else {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.SubF));
+                }
             }
             else{
-                nextIf(TokenType.Minus);
-                type=AnalyseItem();
-                instructions.add(new Instruction(Operation.SUB));
+                throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
         }
         return type;
@@ -322,14 +369,39 @@ public final class Analyser {
         String type="";
         type=AnalyseAs();
         while(check(TokenType.Mult)||check(TokenType.Div)){
-            if(nextIf(TokenType.Mult)!=null){
-                type=AnalyseAs();
-                instructions.add(new Instruction(Operation.MUL));
+            Token t=next();
+            if(type.equals("int")) {
+                if (t.getTokenType()==TokenType.Mult) {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.MulI));
+                } else {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.DivI));
+                }
+            }
+            else if(type.equals("double")) {
+                if (t.getTokenType()==TokenType.Mult) {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.MulF));
+                } else {
+                    String type1 = AnalyseItem();
+                    if(!type.equals(type1)){
+                        throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+                    }
+                    instructions.add(new Instruction(Operation.DivF));
+                }
             }
             else{
-                nextIf(TokenType.Div);
-                type=AnalyseAs();
-                instructions.add(new Instruction(Operation.DIV));
+                throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
         }
         return type;
@@ -342,12 +414,15 @@ public final class Analyser {
             next();
             Token t=next();
             if(t.getValueString().equals("int")){
-                instructions.add(new Instruction(Operation.AS1));
+                instructions.add(new Instruction(Operation.FtoI));
                 type="int";
             }
-            else{
-                instructions.add(new Instruction(Operation.AS2));
+            else if(t.getValueString().equals("double")){
+                instructions.add(new Instruction(Operation.ItoF));
                 type="double";
+            }
+            else{
+                throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
         }
         return type;
@@ -360,7 +435,6 @@ public final class Analyser {
         if (nextIf(TokenType.Minus) != null) {//负数显示为0-(Uint|Ident|<***>)
             negate = true;
             // 计算结果需要被 0 减
-            instructions.add(new Instruction(Operation.LIT, 0));
         }
         else {//防止a=+1;此类情况
             nextIf(TokenType.Plus);
@@ -372,30 +446,32 @@ public final class Analyser {
             var a=expect(TokenType.Ident);
             if(check(TokenType.LParen)){
                 next();
+                instructions.add(new Instruction(Operation.StackAlloc,0));
                 AnalyseAssign();
                 while(check(TokenType.Comma)){
                     next();
                     AnalyseAssign();
                 }
                 expect(TokenType.RParen);
-                //TODO
+                instructions.add(new Instruction(Operation.Call,getOffset(a.getValueString(),a.getStartPos())));
             }
             else {
                 type = whichType(a.getValueString(), a.getStartPos());
-                instructions.add(new Instruction(Operation.LOD, getOffset(a.getValueString(), a.getStartPos())));
+                instructions.add(new Instruction(Operation.GlobA, getOffset(a.getValueString(), a.getStartPos())));
+                instructions.add(new Instruction(Operation.Load64));
             }
         }
         else if (check(TokenType.Uint)) {
             // 调用相应的处理函数
             var b=expect(TokenType.Uint);
             type="int";
-            instructions.add(new Instruction(Operation.LIT,Integer.valueOf(b.getValueString())));
+            instructions.add(new Instruction(Operation.Push,Integer.valueOf(b.getValueString())));
         }
         else if(check(TokenType.Double)){
             var b=expect(TokenType.Double);
             double x=Double.parseDouble(b.getValue().toString());
             type="double";
-            instructions.add(new Instruction(Operation.LIT,new Double(x).longValue()));
+            instructions.add(new Instruction(Operation.Push,new Double(x).longValue()));
         }
         else if(check(TokenType.Str)){
             var b=expect(TokenType.Str);
@@ -412,7 +488,15 @@ public final class Analyser {
         }
 
         if (negate) {
-            instructions.add(new Instruction(Operation.SUB));
+            if(type.equals("int")) {
+                instructions.add(new Instruction(Operation.NegI));
+            }
+            else if(type.equals("double")){
+                instructions.add(new Instruction(Operation.NegI));
+            }
+            else{
+                throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
+            }
         }
         return type;
     }
@@ -459,42 +543,34 @@ public final class Analyser {
         Token k=expect(TokenType.Ident);
         expect(TokenType.Colon);
         Token t=expect(TokenType.Ty);
-        boolean isInitialized=false;
         String type="";
         if(t.getValueString().equals("int")){
+            addSymbol(k.getValueString(), false, false, "int", k.getStartPos());
             if(check(TokenType.Assign)){
                 next();
+                instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));
                 type=AnalyseAssign();
-                isInitialized=true;
+                declareSymbol(k.getValueString(),k.getStartPos());
                 if(type=="int") {
-                    addSymbol(k.getValueString(), isInitialized, false, "int", k.getStartPos());//往符号表内添加数据
-                    instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
+                    instructions.add(new Instruction(Operation.Store64));
                 }
                 else{
                     throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
                 }
-            }
-            else {
-                addSymbol(k.getValueString(), isInitialized, false, "int", k.getStartPos());//往符号表内添加数据
-                //instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
             }
         }
         else if(t.getValueString().equals("double")){
+            addSymbol(k.getValueString(), false, false, "double", k.getStartPos());
             if(check(TokenType.Assign)){
                 next();
+                instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));
                 type=AnalyseAssign();
-                isInitialized=true;
                 if(type=="double") {
-                    addSymbol(k.getValueString(), isInitialized, false, "double", k.getStartPos());//往符号表内添加数据
-                    instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
+                    instructions.add(new Instruction(Operation.Store64));
                 }
                 else{
                     throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
                 }
-            }
-            else {
-                addSymbol(k.getValueString(), isInitialized, false, "double", k.getStartPos());//往符号表内添加数据
-                //instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
             }
         }
         else{
@@ -511,20 +587,22 @@ public final class Analyser {
         Token t=expect(TokenType.Ty);
         expect(TokenType.Assign);
         if(t.getValueString().equals("int")){
+            addSymbol(k.getValueString(), false, true, "int", k.getStartPos());
+            instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));//取出地址
             type=AnalyseAssign();
             if(type=="int") {
-                addSymbol(k.getValueString(), true, true, "int", k.getStartPos());//往符号表内添加数据
-                instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
+                instructions.add(new Instruction(Operation.Store64));//存贮数据
             }
             else{
                 throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
             }
         }
         else if(t.getValueString().equals("double")){
+            addSymbol(k.getValueString(), false, true, "double", k.getStartPos());
+            instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));
             type=AnalyseAssign();
             if(type=="double") {
-                addSymbol(k.getValueString(), true, true, "double", k.getStartPos());//往符号表内添加数据
-                instructions.add(new Instruction(Operation.store64, getOffset(k.getValueString(), k.getStartPos())));
+                instructions.add(new Instruction(Operation.Store64));
             }
             else{
                 throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
@@ -544,22 +622,24 @@ public final class Analyser {
         ArrayList<Integer> end=new ArrayList<Integer>();
         int end1;
         int k1=0;
-        add.add(instructions.size());
-        instructions.add(new Instruction(Operation.Jmp,0));
+        instructions.add(new Instruction(Operation.BrTrue,1));
+        add.add(instructions.size());//需要修改跳转地址的位置
+        instructions.add(new Instruction(Operation.Br,0));
         AnalyseBlock();
-        end.add(instructions.size());
-        instructions.add(new Instruction(Operation.Jmp,0));
+        end.add(instructions.size());//跳出if else语句需要修改的跳转地址位置
+        instructions.add(new Instruction(Operation.Br,0));
         if(check(TokenType.Else)){
             next();
             while (check(TokenType.If)){
                 expect(TokenType.If);
-                nextAdd.add(instructions.size());
+                nextAdd.add(instructions.size());//回填地址
                 AnalyseAssign();
-                add.add(instructions.size());
-                instructions.add(new Instruction(Operation.Jmp,0));
+                instructions.add(new Instruction(Operation.BrTrue,1));
+                add.add(instructions.size());//需要修改跳转地址的位置
+                instructions.add(new Instruction(Operation.Br,0));
                 AnalyseBlock();
                 end.add(instructions.size());
-                instructions.add(new Instruction(Operation.Jmp,0));
+                instructions.add(new Instruction(Operation.Br,0));
                 if (!check(TokenType.Else)){
                     k1=1;
                     break;
@@ -572,12 +652,12 @@ public final class Analyser {
             if(k1==0){
                 AnalyseBlock();
             }
-            end1=instructions.size();
+            end1=instructions.size();//结束地址
             for(int i=0;i<add.size();i++){
-                instructions.set(add.get(i),new Instruction(Operation.Jmp,nextAdd.get(i)));
+                instructions.set(add.get(i),new Instruction(Operation.Br,nextAdd.get(i)-add.get(i)-1));
             }
             for(int i=0;i<end.size();i++){
-                instructions.set(end.get(i),new Instruction(Operation.Jmp,end1));
+                instructions.set(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1));
             }
         }
     }
@@ -585,13 +665,15 @@ public final class Analyser {
     private void AnalyseWhile() throws CompileError{
         expect(TokenType.While);
         int begin=instructions.size();
+        instructions.add(new Instruction(Operation.Br,0));
         AnalyseAssign();
+        instructions.add(new Instruction(Operation.BrTrue,1));
         int add=instructions.size();
-        instructions.add(new Instruction(Operation.Jmp,0));
+        instructions.add(new Instruction(Operation.Br,0));
         AnalyseBlock();
-        instructions.add(new Instruction(Operation.Jmp,begin));
+        instructions.add(new Instruction(Operation.Br,begin-instructions.size()));
         int end=instructions.size();
-        instructions.set(add,new Instruction(Operation.Jmp,end));
+        instructions.set(add,new Instruction(Operation.Br,end-add-1));
     }
 
     private void AnalyseReturn() throws CompileError{
@@ -631,8 +713,10 @@ public final class Analyser {
         expect(TokenType.RParen);
         expect(TokenType.Arrow);
         Token ty=expect(TokenType.Ty);
-        addFunc(ident.getValueString(),ident.getStartPos(),ident.getValueString(),ty.getValueString(),token);
+        addFunc(ident.getValueString(),ident.getStartPos(),ident.getValueString(),ty.getValueString(),token,instructions.size(),0);
         AnalyseBlock();
+        setFuncEnd(ident.getValueString(),instructions.size());
+        instructions.add(new Instruction(Operation.Ret,0));
     }
 
     private Token AnalyseFunctionParam() throws CompileError{

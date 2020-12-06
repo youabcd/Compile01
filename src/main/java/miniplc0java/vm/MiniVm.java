@@ -49,68 +49,47 @@ public class MiniVm {
 
     private void RunStep(Instruction inst) {
         switch (inst.getOpt()) {
-            case ADD: {//加栈顶的两位，push到栈顶
-                //var a = pop();
-                //var b = pop();
-                //push(a + b);
-            }
-                break;
-            case DIV: {
-                //var b = pop();
-                //var a = pop();
-                //push(a / b);
-            }
-                break;
-            case ILL: {//报错
-                throw new Error("Illegal instruction");
-            }
-            case LIT: {//压栈至栈顶
-                //push(inst.getX());
-            }
-                break;
-            case LOD: {//找到栈内的值再push到栈顶
-                //var x = stack.get(inst.getX());
-                //push(x);
-            }
-                break;
-            case MUL: {
-                //var b = pop();
-                //var a = pop();
-                //push(a * b);
-            }
-                break;
-            case STO: {//pop栈顶，将值赋给栈内某个位置
-                //var x = pop();
-                //stack.set(inst.getX(), x);
-            }
-                break;
-            case SUB: {
-                //var b = pop();
-                //var a = pop();
-                //push(a - b);
-            }
-                break;
-            case WRT: {//输出
-               //var b = pop();
-                //out.printf("%d\n", b);
-            }
-            case ASSIGN:{}
-            case pop:{}
-            case NEQ:{}
-            case Jmp:{}
-            case AS2:{}
-            case AS1:{}
-            case LT:{}
-            case LE:{}
-            case GT:{}
-            case GE:{}
-            case EQ:{}
-            case push:{}
-            case store64:{}
+            case CallName:{}
+            case Store64:{}
+            case PrintLN:{}
+            case BrFalse:{}
+            case PrintS:{}
+            case PrintI:{}
+            case PrintF:{}
+            case PrintC:{}
+            case Load64:{}
+            case BrTrue:{}
+            case SetLT:{}
+            case SetGT:{}
+            case ScanI:{}
+            case ScanF:{}
+            case ScanC:{}
+            case Panic:{}
+            case GlobA:{}
+            case SubI:{}
+            case SubF:{}
+            case NegI:{}
+            case NegF:{}
+            case MulI:{}
+            case MulF:{}
+            case LocA:{}
+            case ItoF:{}
+            case FtoI:{}
+            case DivI:{}
+            case DivF:{}
+            case CmpI:{}
+            case CmpF:{}
+            case Call:{}
+            case AddI:{}
+            case AddF:{}
+            case Ret:{}
+            case Not:{}
+            case Br:{}
+            case Pop:{}
+            case Push:{}
                 break;
             default:
                 break;
-
         }
     }
 }

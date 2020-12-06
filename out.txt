@@ -1,35 +1,55 @@
-LIT 20
-store64 2
-LIT 10
-store64 3
-LIT 1
-store64 0
-LIT 1
-LIT 2
-ADD 0
-store64 1
-LOD 0
-LIT 0
-LT 0
-Jmp 17
-LIT 0
-store64 1
-Jmp 26
-LOD 0
-LIT 1
-LT 0
-Jmp 24
-LIT 1
-store64 1
-Jmp 26
-LIT 2
-store64 1
-LOD 1
-LIT 5
-LT 0
-Jmp 35
-LOD 3
-LIT 5
-ADD 0
-store64 1
-Jmp 26
+GlobA 3
+Push 20
+Store64
+GlobA 4
+Push 10
+Store64
+GlobA 1
+Push 1
+Store64
+GlobA 2
+Push 1
+Push 2
+AddI
+Store64
+GlobA 1
+Load64 0
+Push 0
+CmpF
+SetLT
+BrTrue 1
+Br 4
+GlobA 2
+Push 0
+Store64
+Br 14
+GlobA 1
+Load64 0
+Push 1
+CmpF
+SetLT
+BrTrue 1
+Br 4
+GlobA 2
+Push 1
+Store64
+Br 3
+GlobA 2
+Push 2
+Store64
+Br 0
+GlobA 2
+Load64 0
+Push 5
+CmpI
+SetLT
+BrTrue 1
+Br 7
+GlobA 2
+GlobA 4
+Load64 0
+Push 5
+AddI
+Store64
+Br -14
+Ret
