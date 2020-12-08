@@ -649,7 +649,8 @@ public final class Analyser {
                     ArrayList<String> paramType = new ArrayList<>();
                     if (check(TokenType.RParen)) {
                         expect(TokenType.RParen);
-                    } else {
+                    }
+                    else {
                         paramType.add(AnalyseAssign(func, depth));
                         while (check(TokenType.Comma)) {
                             next();
@@ -657,9 +658,10 @@ public final class Analyser {
                         }
                         expect(TokenType.RParen);
                     }
-                        func.checkParams(a.getStartPos(), paramType);
-                        func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()), 4));
-                        type = calledFunc.getReturnType();
+                    //TODO 0-ac11 ac3-1 ac4-1 ac4 ac6 ac9
+                    func.checkParams(a.getStartPos(), paramType);
+                    func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()), 4));
+                    type = calledFunc.getReturnType();
 
                 }
             }
@@ -694,7 +696,7 @@ public final class Analyser {
             // 调用相应的处理函数
             var b=expect(TokenType.Uint);
             type="int";
-            func.addInstruction(new Instruction(Operation.Push,Integer.valueOf(b.getValueString())));
+            func.addInstruction(new Instruction(Operation.Push,Long.parseLong(b.getValueString())));
         }
         else if(check(TokenType.Double)){
             var b=expect(TokenType.Double);
@@ -702,8 +704,8 @@ public final class Analyser {
             type="double";
             func.addInstruction(new Instruction(Operation.Push,Double.doubleToLongBits(x)));
         }
-        else if(check(TokenType.Char)){
-            var b=expect(TokenType.Char);
+        else if(check(TokenType.Char)){//TODO 2-ac1 ac2
+            Token b=expect(TokenType.Char);
             func.addInstruction(new Instruction(Operation.Push,(int)(b.getValue()), 8 ));
         }
         else if (check(TokenType.LParen)) {
@@ -715,8 +717,9 @@ public final class Analyser {
         else if(check(TokenType.None)){
 
         }
+        //TODO 0-ac3
         else {
-            throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
+            throw new ExpectedTokenError(List.of(TokenType.Ident), next());
         }
 
         if (negate) {
@@ -727,7 +730,7 @@ public final class Analyser {
                 func.addInstruction(new Instruction(Operation.NegF));
             }
             else{
-                throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
+                throw new ExpectedTokenError(List.of(TokenType.Ident), next());
             }
         }
         return type;
@@ -801,7 +804,7 @@ public final class Analyser {
                 func.addInstruction(new Instruction(Operation.LocA,offset,4));
             }
             type=AnalyseAssign(func,depth);
-            if(type.equals(t.getValueString())) {
+            if(type.equals(t.getValueString())) {//TODO 3-ac2
                 func.addInstruction(new Instruction(Operation.Store64));
             }
             else{

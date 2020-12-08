@@ -71,7 +71,7 @@ public class Tokenizer {
         String uint1=new String(uint);
         if(isD==0) {
             if(isE==0) {
-                int a = Integer.parseInt(uint1);
+                long a=Long.parseLong(uint1);//TODO 3-ac1 暂时已修改
                 return new Token(TokenType.Uint, a, ptrstart, it.currentPos());
             }
             else{
