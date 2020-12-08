@@ -233,6 +233,7 @@ public class Tokenizer {
         if(ch.length>1||ch.length==0){
             throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
         }
+        //TODO 已修改
         return new Token(TokenType.Char, str.charAt(0), ptrstart, it.currentPos());
     }
 

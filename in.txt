@@ -1,5 +1,5 @@
 const x1:int=1;
-fn test()->int{
+fn test(nm:int,mn:int)->int{
 return x1;
 }
 fn main()->void{
@@ -7,9 +7,9 @@ fn main()->void{
     let b:int;
     const k: double= 20.0;
     const k1: int =10;
-    j=1.0;
+    j=-1.0;
     b=1+2;
-    b=test();
+    b=test(1,2);
     if j<0.0{
         b=1;
     }

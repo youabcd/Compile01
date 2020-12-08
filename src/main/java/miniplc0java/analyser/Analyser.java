@@ -411,7 +411,7 @@ public final class Analyser {
     | ident_expr
     | group_expr*/
     private String AnalyseAssign(FunctionList func,int depth) throws CompileError{
-        String type="",type1="";
+        String type="void",type1="void";
         Token t=peek();
         type=AnalyseCmp(func,depth);
         if(check(TokenType.Assign)){
@@ -437,7 +437,7 @@ public final class Analyser {
     }
 
     private String AnalyseCmp(FunctionList func,int depth) throws CompileError{
-        String type="";
+        String type="void";
         type=AnalyseExpression(func,depth);
         if(check(TokenType.Gt)||check(TokenType.Lt)||check(TokenType.Ge)||check(TokenType.Le)||check(TokenType.Eq)||check(TokenType.Neq)) {
             Token t = next();
@@ -473,7 +473,7 @@ public final class Analyser {
     }
 
     private String AnalyseExpression(FunctionList func,int depth) throws CompileError {
-        String type="";
+        String type="void";
         type=AnalyseItem(func,depth);
         while(check(TokenType.Minus)||check(TokenType.Plus)){
             Token t=next();
@@ -516,7 +516,7 @@ public final class Analyser {
 
     private String AnalyseItem(FunctionList func,int depth) throws CompileError {
         //<项>::=<因子>{(*|/)<因子>}
-        String type="";
+        String type="void";
         type=AnalyseAs(func, depth);
         while(check(TokenType.Mult)||check(TokenType.Div)){
             Token t=next();
@@ -558,7 +558,7 @@ public final class Analyser {
     }
 
     private String AnalyseAs(FunctionList func,int depth) throws CompileError{
-        String type="";
+        String type="void";
         type=AnalyseFactor(func, depth);
         if(check(TokenType.As)){
             next();
@@ -580,7 +580,7 @@ public final class Analyser {
 
     private String AnalyseFactor(FunctionList func,int depth) throws CompileError {
         //<因子>::=Ident|Uint|(<表达式>)
-        String type="";
+        String type="void";
         boolean negate;
         if (nextIf(TokenType.Minus) != null) {//负数显示为0-(Uint|Ident|<***>)
             negate = true;
@@ -659,7 +659,7 @@ public final class Analyser {
                         expect(TokenType.RParen);
                     }
                     //TODO 0-ac11 ac3-1 ac4-1 ac4 ac6 ac9
-                    func.checkParams(a.getStartPos(), paramType);
+                    calledFunc.checkParams(a.getStartPos(), paramType);
                     func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()), 4));
                     type = calledFunc.getReturnType();
 
@@ -706,7 +706,7 @@ public final class Analyser {
         }
         else if(check(TokenType.Char)){//TODO 2-ac1 ac2
             Token b=expect(TokenType.Char);
-            func.addInstruction(new Instruction(Operation.Push,(int)(b.getValue()), 8 ));
+            func.addInstruction(new Instruction(Operation.Push,(int)((char)(b.getValue())), 8 ));
         }
         else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
