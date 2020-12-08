@@ -233,7 +233,7 @@ public class Tokenizer {
         if(ch.length>1||ch.length==0){
             throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
         }
-        return new Token(TokenType.Char, ch[0], ptrstart, it.currentPos());
+        return new Token(TokenType.Char, str.charAt(0), ptrstart, it.currentPos());
     }
 
     private Token lexIdentOrKeyword() throws TokenizeError {//判断为标识符或关键字
