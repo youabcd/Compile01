@@ -79,39 +79,24 @@ public class App {
         var iter = new StringIter(scanner);
         var tokenizer = tokenize(iter);
 
+        // analyze
         var analyzer = new Analyser(tokenizer);
-        MidCode m=analyzer.analyse();
+
+
+        MidCode m = analyzer.analyse();
+        //output.println(MidCode.getMidCode().toString());
         WriteFile.writeO0File(m, outputFileName);
 
-        /*if (result.getBoolean("tokenize")) {
-            // tokenize
-            var tokens = new ArrayList<Token>();
+        /*
+        try {
 
-                while (true) {
-                    var token = tokenizer.nextToken();
-                    if (token.getTokenType().equals(TokenType.EOF)) {
-                        break;
-                    }
-                    tokens.add(token);
-            }
-            for (Token token : tokens) {
-                output.println(token.toString());
-            }
-        } else if (result.getBoolean("analyse")) {
-            // analyze
-            var analyzer = new Analyser(tokenizer);
-            //List<Instruction> instructions;
-            //instructions = analyzer.analyse();
-
-            MidCode m=analyzer.analyse();
-
-            //output.println(MidCode.getMidCode().toString());
-            WriteFile.writeO0File(m, outputFileName);
-
-        } else {
-            System.err.println("Please specify either '--analyse' or '--tokenize'.");
-            System.exit(3);
+        } catch (Exception e) {
+            // 遇到错误不输出，直接退出
+            //e.printStackTrace();
+            System.err.println(e);
+            System.exit(0);
         }*/
+        // output.println(MidCode.getMidCode().toString());
     }
 
     private static ArgumentParser buildArgparse() {
