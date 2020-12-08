@@ -1,5 +1,5 @@
 const x1:int=1;
-fn test(nm:int,mn:int)->int{
+fn test(nm:int)->int{
 return x1;
 }
 fn main()->void{
@@ -9,7 +9,7 @@ fn main()->void{
     const k1: int =10;
     j=-1.0;
     b=1+2;
-    b=test(1,2);
+    b=test(-1);
     if j<0.0{
         b=1;
     }

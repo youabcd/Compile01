@@ -593,7 +593,7 @@ public final class Analyser {
 
         if (check(TokenType.Ident)) {
             // 调用相应的处理函数
-            var a=expect(TokenType.Ident);
+            Token a=expect(TokenType.Ident);
             //调用函数
             if(check(TokenType.LParen)){
                 if(FunctionList.libFunc.get(a.getValueString())!=null){
@@ -647,7 +647,17 @@ public final class Analyser {
                     func.addInstruction(new Instruction(Operation.StackAlloc, calledFunc.getReturnSlots(), 4));
                     next();
                     ArrayList<String> paramType = new ArrayList<>();
-                    if (check(TokenType.RParen)) {
+                    while(!check(TokenType.RParen)){
+                        paramType.add(AnalyseAssign(func,depth));
+                        if(check(TokenType.Comma)){
+                            next();
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    expect(TokenType.RParen);
+                    /*if (check(TokenType.RParen)) {
                         expect(TokenType.RParen);
                     }
                     else {
@@ -657,12 +667,11 @@ public final class Analyser {
                             paramType.add(AnalyseAssign(func, depth));
                         }
                         expect(TokenType.RParen);
-                    }
+                    }*/
                     //TODO 0-ac11 ac3-1 ac4-1 ac4 ac6 ac9
                     calledFunc.checkParams(a.getStartPos(), paramType);
-                    func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()), 4));
+                    func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()) ,4));
                     type = calledFunc.getReturnType();
-
                 }
             }
             //加载变量
