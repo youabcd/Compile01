@@ -1,25 +1,25 @@
+const x1:int=1;
+fn test()->int{
+return x1;
+}
 fn main()->void{
-//let i: double=5e-2;
-let j: double;
-let b:int;
-//fn func (f1:int,f2:int)->int{
-//b=f1+f2;
-//}
-const k: double= 20.0;
-const k1: int =10;
-j=1.0;
-b=1+2;
-if j<0.0{
-b=0;
-}
-else if j<1.0{
-b=1;
-}
-else {
-b=2;
-}
-while b<5 {
-b=k1+5;
-}
-//let a: double =2.0;
+    let j: double;
+    let b:int;
+    const k: double= 20.0;
+    const k1: int =10;
+    j=1.0;
+    b=1+2;
+    b=test();
+    if j<0.0{
+        b=1;
+    }
+    else if j<1.0{
+        b==1;
+    }
+    else {
+        b<=2;
+    }
+    while b<5 {
+        b=5;
+    }
 }

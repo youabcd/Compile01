@@ -5,9 +5,12 @@ import miniplc0java.error.CompileError;
 import miniplc0java.error.ErrorCode;
 import miniplc0java.error.ExpectedTokenError;
 import miniplc0java.error.TokenizeError;
-import miniplc0java.instruction.FunctionList;
 import miniplc0java.instruction.Instruction;
 import miniplc0java.instruction.Operation;
+import miniplc0java.instruction.FunctionList;
+import miniplc0java.instruction.GlobalSymbol;
+import miniplc0java.instruction.FunctionParam;
+import miniplc0java.instruction.MidCode;
 import miniplc0java.tokenizer.Token;
 import miniplc0java.tokenizer.TokenType;
 import miniplc0java.tokenizer.Tokenizer;
@@ -18,27 +21,96 @@ import java.util.*;
 public final class Analyser {
 
     Tokenizer tokenizer;
-    ArrayList<Instruction> instructions;
-    ArrayList<Token> temporaryTable;
+    //ArrayList<Instruction> instructions;
+    ArrayList<SymbolEntry> temporaryTable=new ArrayList<>();//每层临时变量表
+    MidCode midCode=MidCode.getMidCode();
 
     /** 当前偷看的 token */
     Token peekedToken = null;
 
     /** 符号表 */
-    HashMap<String, SymbolEntry> symbolTable = new HashMap<>();
-    HashMap<String, FunctionList> funcTable=new HashMap<>();
+    //HashMap<String, SymbolEntry> symbolTable = new HashMap<>();
 
     /** 下一个变量的栈偏移 */
     int nextOffset = 0;
 
     public Analyser(Tokenizer tokenizer) {
         this.tokenizer = tokenizer;
-        this.instructions = new ArrayList<>();
     }
 
     public List<Instruction> analyse() throws CompileError {
         analyseProgram();
-        return instructions;
+        //return midCode;
+        return null;
+    }
+
+    /**
+     * 符号表中查找当前层级的符号
+     * @param name
+     * @param depth
+     * @return 存在相同变量名：true 不存在：false
+     */
+    public boolean findSymbol(String name, int depth){
+        for(SymbolEntry s: temporaryTable){
+            if(s.name.equals(name) && s.getDepth()==depth){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 从后往前查找符号，不是全局符号的
+     * @param name
+     * @param depth
+     * @return
+     */
+    public SymbolEntry findBSymbol(String name, int depth){
+        for(int i=temporaryTable.size()-1; i>=0; i--){
+            if(temporaryTable.get(i).getName().equals(name) &&
+                    temporaryTable.get(i).getDepth()<=depth && temporaryTable.get(i).getDepth()!=0){
+                return temporaryTable.get(i);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据变量名和等级获取变量
+     * @param name
+     * @param depth
+     * @return
+     */
+    public SymbolEntry getSymbol(String name, int depth){
+        for(SymbolEntry s: temporaryTable){
+            if(s.name.equals(name) && s.getDepth()==depth){
+                return s;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 调用某个变量，若未定义过则抛出异常，若定义过则返回变量
+     * @param name
+     * @param depth
+     * @return
+     */
+    public SymbolEntry useSymbol(String name, int depth, Pos curPos) throws AnalyzeError {
+        for(int i=temporaryTable.size()-1; i>=0; i--){
+            if(temporaryTable.get(i).getName().equals(name) && temporaryTable.get(i).getDepth() <= depth){
+                return temporaryTable.get(i);
+            }
+        }
+        throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
+    }
+
+    /**
+     * 将某个rank的变量全都pop掉
+     * @param depth
+     */
+    public void popRank(int depth){
+        temporaryTable.removeIf(s -> s.getDepth() == depth);
     }
 
     /**
@@ -124,44 +196,24 @@ public final class Analyser {
      * @param curPos        当前 token 的位置（报错用）
      * @throws AnalyzeError 如果重复定义了则抛异常
      */
-    private void addSymbol(String name, boolean isInitialized, boolean isConstant, String type, Pos curPos) throws AnalyzeError {
-        if (this.symbolTable.get(name) != null) {
+    private void addSymbol(String name, boolean isInitialized, boolean isConstant, String type, Pos curPos,int depth,int offSet) throws AnalyzeError {
+        if (findBSymbol(name,depth) != null) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         }
         else {
-            this.symbolTable.put(name, new SymbolEntry(isConstant, isInitialized, type, getNextVariableOffset()));
+            this.temporaryTable.add(new SymbolEntry(isConstant, isInitialized, type, offSet,name,depth));
         }
     }
 
-    private void addFunc(String name,Pos curPos, String n1,String type,ArrayList<Token> funcParams, int begin,int end) throws AnalyzeError {
-        if (this.funcTable.get(name) != null) {
-            throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
-        }
-        else {
-            this.funcTable.put(name, new FunctionList(n1, type, funcParams,begin,end));
-        }
-    }
-
-    private int getFuncBegin(String name){
-        return this.funcTable.get(name).getBegin();
-    }
-
-    private int getFuncEnd(String name){
-        return this.funcTable.get(name).getEnd();
-    }
-
-    private void setFuncEnd(String name,int end){
-        this.funcTable.get(name).setEnd(end);
-    }
 
     /**
      * 获取下一个变量的栈偏移
      *
      * @return
      */
-    private int getNextVariableOffset() {
+    /*private int getNextVariableOffset() {
         return this.nextOffset++;
-    }
+    }*/
 
     /**
      * 设置符号为已赋值
@@ -170,8 +222,8 @@ public final class Analyser {
      * @param curPos 当前位置（报错用）
      * @throws AnalyzeError 如果未定义则抛异常
      */
-    private void declareSymbol(String name, Pos curPos) throws AnalyzeError {
-        var entry = this.symbolTable.get(name);
+    private void declareSymbol(String name, Pos curPos,int depth) throws AnalyzeError {
+        var entry = getSymbol(name,depth);
         if (entry == null) {
             throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
         }
@@ -188,12 +240,64 @@ public final class Analyser {
      * @return 栈偏移
      * @throws AnalyzeError
      */
-    private int getOffset(String name, Pos curPos) throws AnalyzeError {
-        var entry = this.symbolTable.get(name);
+    private int getOffset(String name, int depth,Pos curPos) throws AnalyzeError {
+        var entry = useSymbol(name,depth,curPos);
         if (entry == null) {
             throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
         } else {
             return entry.getStackOffset();
+        }
+    }
+
+    /**
+     * 根据SymbolEntry返回符号的偏移量
+     * @param sy
+     * @return
+     * @throws AnalyzeError
+     */
+    private int getOffset(SymbolEntry sy) throws AnalyzeError {
+        return temporaryTable.indexOf(sy);
+    }
+
+    /**
+     * 获取局部变量的位置
+     * @param sy
+     * @return
+     */
+    private int getVarThisRankOffset(SymbolEntry sy){
+        for(SymbolEntry s : temporaryTable){
+            if(s.getName().equals(sy.getName()) &&
+                    s.getDepth() == sy.getDepth() ){
+                return s.getStackOffset();
+
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 获取当前rank的下一个局部变量的位置
+     * @param rank
+     * @return
+     */
+    private int getThisRankOffset(int rank){
+        if(rank == 0){
+            int num=0;
+            for(SymbolEntry s: temporaryTable){
+                if(s.getDepth() == 0){
+                    num ++;
+                }
+            }
+            return num;
+        }
+        else {
+            int num = 0;
+            for (SymbolEntry s : temporaryTable) {
+                if (s.getDepth() <= rank && s.getDepth()!=0) {
+                    num++;
+                }
+            }
+            return num;
         }
     }
 
@@ -205,48 +309,88 @@ public final class Analyser {
      * @return 是否为常量
      * @throws AnalyzeError
      */
-    private boolean isConstant(String name, Pos curPos) throws AnalyzeError {
-        var entry = this.symbolTable.get(name);
-        if (entry == null) {
-            throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
-        } else {
-            return entry.isConstant();
+    private boolean isConstant(FunctionList func,String name, Pos curPos,int depth) throws AnalyzeError {//TODO
+        SymbolEntry sy;
+        int offset=0;
+        if ((sy=findBSymbol(name, depth))!=null) {
+            return sy.isConstant();
+        }
+        // 查找函数参数表
+        else if ((offset=(func.getParamOffset(name))) >= 0) {
+            return func.getOffsetParam(offset).isConst();
+        }
+        // 查找变量表
+        else {
+            sy = useSymbol(name, 0, curPos);
+            return sy.isConstant();
         }
     }
 
-    /*获取变量的类型*/
-    private String whichType(String name,Pos curPos) throws AnalyzeError{
-        var entry = this.symbolTable.get(name);
-        if (entry == null) {
-            throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
-        } else {
-            return entry.type;
+    /*
+    *获取变量的类型*
+    */
+    private String whichType(FunctionList func,String name,Pos curPos,int depth) throws AnalyzeError{//TODO
+        SymbolEntry sy;
+        int offset=0;
+        if ((sy=findBSymbol(name, depth))!=null) {
+            return sy.Type();
+        }
+        // 查找函数参数表
+        else if ((offset=(func.getParamOffset(name))) >= 0) {
+            return func.getOffsetParam(offset).getType();
+        }
+        // 查找变量表
+        else {
+            sy = useSymbol(name, 0, curPos);
+            return sy.Type();
         }
     }
 
     /*是否已定义*/
-    private boolean isInitialized(String name,Pos curPos) throws AnalyzeError{
-        var entry = this.symbolTable.get(name);
-        if (entry == null) {
-            throw new AnalyzeError(ErrorCode.NotDeclared, curPos);
-        } else {
-            return entry.isInitialized;
+    private boolean isInitialized(FunctionList func,String name,Pos curPos,int depth) throws AnalyzeError{//TODO
+        SymbolEntry sy;
+        int offset=0;
+        if ((sy=findBSymbol(name, depth))!=null) {
+            return sy.isInitialized();
+        }
+        // 查找函数参数表
+        else if ((offset=(func.getParamOffset(name))) >= 0) {
+            return true;
+        }
+        // 查找变量表
+        else {
+            sy = useSymbol(name, 0, curPos);
+            return sy.isInitialized();
         }
     }
 
     /**
-     * <程序> ::= 'begin'<主过程>'end'
+     * 主程序
      */
     private void analyseProgram() throws CompileError {
-        // 示例函数，示例如何调用子程序
         // 'begin'
-        while(!check(TokenType.EOF)) {
-            if (check(TokenType.Fn)) {
+        FunctionList funcStart=new FunctionList("_start");
+        while(!check(TokenType.EOF)){
+            if(check(TokenType.Fn)){
                 AnalyseFunction();
-            } else {
-                AnalyseStatement();
+            }
+            else{
+                // 全局变量
+                if(check(TokenType.Const)){ // decl_stmt const
+                    AnalyseConst_decl_stmt(funcStart, 0);
+                }
+                else if(check(TokenType.Let)){ // decl_stmt let
+                    AnalyseLet_decl_stmt(funcStart, 0);
+                }
             }
         }
+
+        MidCode.getMidCode().addFunction(funcStart);
+        FunctionList mid=midCode.getFn("main",peek().getStartPos());
+        funcStart.addInstruction(new Instruction(Operation.StackAlloc,mid.getReturnSlots(),4));
+        int start=midCode.getFnAddress("main");
+        funcStart.addInstruction(new Instruction(Operation.Call,start,4));
+        midCode.addGlobalSymbol("_start",peek().getStartPos());
 
         // 'end'
         expect(TokenType.EOF);
@@ -261,22 +405,22 @@ public final class Analyser {
     | literal_expr
     | ident_expr
     | group_expr*/
-    private String AnalyseAssign() throws CompileError{
+    private String AnalyseAssign(FunctionList func,int depth) throws CompileError{
         String type="",type1="";
         Token t=peek();
-        type=AnalyseCmp();
+        type=AnalyseCmp(func,depth);
         if(check(TokenType.Assign)){
             if(t.getTokenType()==TokenType.Ident){
-                instructions.remove(instructions.size()-1);
-                if(isConstant(t.getValueString(),t.getStartPos())&&isInitialized(t.getValueString(),t.getStartPos())){
+                func.removeInstruction(func.getInstructionsLength()-1);
+                if(isConstant(func,t.getValueString(),t.getStartPos(),depth)&&isInitialized(func,t.getValueString(),t.getStartPos(),depth)){
                     throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
                 }
                 next();
-                type1 = AnalyseCmp();
+                type1 = AnalyseCmp(func,depth);
                 if (!type.equals(type1)) {
                     throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                 } else {
-                    instructions.add(new Instruction(Operation.Store64));
+                    func.addInstruction(new Instruction(Operation.Store64));
                 }
             }
             else{
@@ -286,75 +430,76 @@ public final class Analyser {
         }
         return type;
     }
-    private String AnalyseCmp() throws CompileError{
+
+    private String AnalyseCmp(FunctionList func,int depth) throws CompileError{
         String type="";
-        type=AnalyseExpression();
+        type=AnalyseExpression(func,depth);
         if(check(TokenType.Gt)||check(TokenType.Lt)||check(TokenType.Ge)||check(TokenType.Le)||check(TokenType.Eq)||check(TokenType.Neq)) {
             Token t = next();
-            String type1 = AnalyseExpression();
+            String type1 = AnalyseExpression(func,depth);
             if (!type.equals(type1)) {
                 throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
             if (type.equals("int")) {
-                instructions.add(new Instruction(Operation.CmpI));
+                func.addInstruction(new Instruction(Operation.CmpI));
             }
             else if(type.equals("double")){
-                instructions.add(new Instruction(Operation.CmpF));
+                func.addInstruction(new Instruction(Operation.CmpF));
             }
             else {
                 throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
             if (t.getTokenType() == TokenType.Gt) {
-                instructions.add(new Instruction(Operation.SetGT));
+                func.addInstruction(new Instruction(Operation.SetGT));
             } else if (t.getTokenType() == TokenType.Lt) {
-                instructions.add(new Instruction(Operation.SetLT));
+                func.addInstruction(new Instruction(Operation.SetLT));
             } else if (t.getTokenType() == TokenType.Ge) {
-                instructions.add(new Instruction(Operation.SetLT));
-                instructions.add(new Instruction(Operation.Not));
+                func.addInstruction(new Instruction(Operation.SetLT));
+                func.addInstruction(new Instruction(Operation.Not));
             } else if (t.getTokenType() == TokenType.Le) {
-                instructions.add(new Instruction(Operation.SetGT));
-                instructions.add(new Instruction(Operation.Not));
+                func.addInstruction(new Instruction(Operation.SetGT));
+                func.addInstruction(new Instruction(Operation.Not));
             } else if (t.getTokenType() == TokenType.Eq) {
-                instructions.add(new Instruction(Operation.Not));
+                func.addInstruction(new Instruction(Operation.Not));
             } else if (t.getTokenType() == TokenType.Neq) {
             }
         }
         return type;
     }
 
-    private String AnalyseExpression() throws CompileError {
+    private String AnalyseExpression(FunctionList func,int depth) throws CompileError {
         String type="";
-        type=AnalyseItem();
+        type=AnalyseItem(func,depth);
         while(check(TokenType.Minus)||check(TokenType.Plus)){
             Token t=next();
             if(type.equals("int")) {
                 if (t.getTokenType()==TokenType.Plus) {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func,depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.AddI));
+                    func.addInstruction(new Instruction(Operation.AddI));
                 } else {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func,depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.SubI));
+                    func.addInstruction(new Instruction(Operation.SubI));
                 }
             }
             else if(type.equals("double")) {
                 if (t.getTokenType()==TokenType.Plus) {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func,depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.AddF));
+                    func.addInstruction(new Instruction(Operation.AddF));
                 } else {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func,depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.SubF));
+                    func.addInstruction(new Instruction(Operation.SubF));
                 }
             }
             else{
@@ -364,40 +509,40 @@ public final class Analyser {
         return type;
     }
 
-    private String AnalyseItem() throws CompileError {
+    private String AnalyseItem(FunctionList func,int depth) throws CompileError {
         //<项>::=<因子>{(*|/)<因子>}
         String type="";
-        type=AnalyseAs();
+        type=AnalyseAs(func, depth);
         while(check(TokenType.Mult)||check(TokenType.Div)){
             Token t=next();
             if(type.equals("int")) {
                 if (t.getTokenType()==TokenType.Mult) {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.MulI));
+                    func.addInstruction(new Instruction(Operation.MulI));
                 } else {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.DivI));
+                    func.addInstruction(new Instruction(Operation.DivI));
                 }
             }
             else if(type.equals("double")) {
                 if (t.getTokenType()==TokenType.Mult) {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.MulF));
+                    func.addInstruction(new Instruction(Operation.MulF));
                 } else {
-                    String type1 = AnalyseItem();
+                    String type1 = AnalyseItem(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
-                    instructions.add(new Instruction(Operation.DivF));
+                    func.addInstruction(new Instruction(Operation.DivF));
                 }
             }
             else{
@@ -407,18 +552,18 @@ public final class Analyser {
         return type;
     }
 
-    private String AnalyseAs() throws CompileError{
+    private String AnalyseAs(FunctionList func,int depth) throws CompileError{
         String type="";
-        type=AnalyseFactor();
+        type=AnalyseFactor(func, depth);
         if(check(TokenType.As)){
             next();
             Token t=next();
             if(t.getValueString().equals("int")){
-                instructions.add(new Instruction(Operation.FtoI));
+                func.addInstruction(new Instruction(Operation.FtoI));
                 type="int";
             }
             else if(t.getValueString().equals("double")){
-                instructions.add(new Instruction(Operation.ItoF));
+                func.addInstruction(new Instruction(Operation.ItoF));
                 type="double";
             }
             else{
@@ -428,7 +573,7 @@ public final class Analyser {
         return type;
     }
 
-    private String AnalyseFactor() throws CompileError {
+    private String AnalyseFactor(FunctionList func,int depth) throws CompileError {
         //<因子>::=Ident|Uint|(<表达式>)
         String type="";
         boolean negate;
@@ -444,44 +589,125 @@ public final class Analyser {
         if (check(TokenType.Ident)) {
             // 调用相应的处理函数
             var a=expect(TokenType.Ident);
+            //调用函数
             if(check(TokenType.LParen)){
-                next();
-                instructions.add(new Instruction(Operation.StackAlloc,0));
-                AnalyseAssign();
-                while(check(TokenType.Comma)){
+                if(FunctionList.libFunc.get(a.getValueString())!=null){
                     next();
-                    AnalyseAssign();
+                    int offset=midCode.insertLibFunctionBefore(func.getFnName(),a.getValueString());
+                    switch (a.getValueString()){
+                        case "getdouble":
+                            type="double";
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 1, 4));
+                            break;
+                        case "getint":
+                        case "getchar":
+                            type="int";
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 1, 4));
+                            break;
+                        case "putstr":
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 0, 4));
+                            if (check(TokenType.RParen)) {
+                                throw new AnalyzeError(ErrorCode.ExpectedToken, a.getStartPos());
+                            }
+                            Token t=expect(TokenType.Str);
+                            midCode.addGlobalSymbolToLastPos(t.getValueString(), t.getStartPos());
+                            offset=midCode.getSymbolAddress(t.getValueString());
+                            func.addInstruction(new Instruction(Operation.Push, offset, 8));
+                            offset=midCode.getSymbolAddress("putstr");
+                            break;
+                        case "putln":
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 0, 4));
+                            break;
+                        default:
+                            if (check(TokenType.RParen)) {
+                                throw new AnalyzeError(ErrorCode.ExpectedToken, a.getStartPos());
+                            }
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 0, 4));
+                            if (a.getValueString().equals("putint") || a.getValueString().equals("putchar")) {
+                                if (!AnalyseAssign(func, depth).equals("int")) {
+                                    throw new AnalyzeError(ErrorCode.ExpectedToken, a.getStartPos());
+                                }
+                            } else if (a.getValueString().equals("putdouble")) {
+                                if (!AnalyseAssign(func,depth).equals("double")) {
+                                    throw new AnalyzeError(ErrorCode.ExpectedToken, a.getStartPos());
+                                }
+                            }
+                            break;
+                    }
+                    expect(TokenType.RParen);
+                    func.addInstruction(new Instruction(Operation.CallName,offset,4));
                 }
-                expect(TokenType.RParen);
-                instructions.add(new Instruction(Operation.Call,getOffset(a.getValueString(),a.getStartPos())));
+                else {
+                    FunctionList calledFunc = midCode.getFn(a.getValueString(), a.getStartPos());
+                    func.addInstruction(new Instruction(Operation.StackAlloc, calledFunc.getReturnSlots(), 4));
+                    next();
+                    ArrayList<String> paramType = new ArrayList<>();
+                    if (check(TokenType.RParen)) {
+                        expect(TokenType.RParen);
+                    } else {
+                        paramType.add(AnalyseAssign(func, depth));
+                        while (check(TokenType.Comma)) {
+                            next();
+                            paramType.add(AnalyseAssign(func, depth));
+                        }
+                        expect(TokenType.RParen);
+                    }
+                        func.checkParams(a.getStartPos(), paramType);
+                        func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()), 4));
+                        type = calledFunc.getReturnType();
+
+                }
             }
+            //加载变量
             else {
-                type = whichType(a.getValueString(), a.getStartPos());
-                instructions.add(new Instruction(Operation.GlobA, getOffset(a.getValueString(), a.getStartPos())));
-                instructions.add(new Instruction(Operation.Load64));
+                int offset;
+                SymbolEntry sy;
+                if ((sy=findBSymbol(a.getValueString(), depth))!=null) {
+                    offset=sy.getStackOffset();
+                    type=sy.Type();
+                    func.addInstruction(new Instruction(Operation.LocA, offset, 4));
+                }
+                // 查找函数参数表
+                else if ((offset=func.getParamOffset(a.getValueString())) >= 0) {
+                    if (func.haveRet())
+                        offset++;
+                    type=func.getOffsetParam(offset).getType();
+                    func.addInstruction(new Instruction(Operation.Arga, offset, 4));
+                }
+                // 查找变量表
+                else {
+                    sy = useSymbol(a.getValueString(), 0, a.getStartPos());
+                    type=sy.Type();
+                    offset=sy.getStackOffset();
+                    func.addInstruction(new Instruction(Operation.GlobA, offset, 4));
+                }
+                func.addInstruction(new Instruction(Operation.Load64));
             }
         }
         else if (check(TokenType.Uint)) {
             // 调用相应的处理函数
             var b=expect(TokenType.Uint);
             type="int";
-            instructions.add(new Instruction(Operation.Push,Integer.valueOf(b.getValueString())));
+            func.addInstruction(new Instruction(Operation.Push,Integer.valueOf(b.getValueString())));
         }
         else if(check(TokenType.Double)){
             var b=expect(TokenType.Double);
             double x=Double.parseDouble(b.getValue().toString());
             type="double";
-            instructions.add(new Instruction(Operation.Push,new Double(x).longValue()));
+            func.addInstruction(new Instruction(Operation.Push,Double.doubleToLongBits(x)));
         }
-        else if(check(TokenType.Str)){
-            var b=expect(TokenType.Str);
-            //TODO
+        else if(check(TokenType.Char)){
+            var b=expect(TokenType.Char);
+            func.addInstruction(new Instruction(Operation.Push,(int)(b.getValue()), 8 ));
         }
         else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
             expect(TokenType.LParen);
-            type=AnalyseAssign();
+            type=AnalyseAssign(func, depth);
             expect(TokenType.RParen);
+        }
+        else if(check(TokenType.None)){
+
         }
         else {
             throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
@@ -489,10 +715,10 @@ public final class Analyser {
 
         if (negate) {
             if(type.equals("int")) {
-                instructions.add(new Instruction(Operation.NegI));
+                func.addInstruction(new Instruction(Operation.NegI));
             }
             else if(type.equals("double")){
-                instructions.add(new Instruction(Operation.NegI));
+                func.addInstruction(new Instruction(Operation.NegF));
             }
             else{
                 throw new ExpectedTokenError(List.of(TokenType.Ident, TokenType.Uint, TokenType.LParen), next());
@@ -511,135 +737,141 @@ public final class Analyser {
     | block_stmt
     | empty_stmt*/
 
-    private void AnalyseStatement() throws CompileError{
+    private void AnalyseStatement(FunctionList func,int depth) throws CompileError{
         if(check(TokenType.Let)){
-            AnalyseLet_decl_stmt();
+            AnalyseLet_decl_stmt(func,depth);
         }
         else if(check(TokenType.Const)){
-            AnalyseConst_decl_stmt();
+            AnalyseConst_decl_stmt(func, depth);
         }
         else if(check(TokenType.If)){
-            AnalyseIf();
+            AnalyseIf(func,depth);
         }
         else if(check(TokenType.While)){
-            AnalyseWhile();
+            AnalyseWhile(func,depth);
         }
         else if(check(TokenType.Return)){
-            AnalyseReturn();
+            AnalyseReturn(func,depth);
         }
         else if(check(TokenType.Lbrace)){//代码块
-            AnalyseBlock();
+            AnalyseBlock(func,depth);
         }
         else if(check(TokenType.Semicolon)){
-            AnalyseEmpty();
+            AnalyseEmpty(func,depth);
         }
         else{
-            AnalyseAssign();
+            AnalyseAssign(func,depth);
         }
     }
 
-    private void AnalyseLet_decl_stmt() throws CompileError{//let声明
+    private void AnalyseLet_decl_stmt(FunctionList func,int depth) throws CompileError{//let声明
         expect(TokenType.Let);
         Token k=expect(TokenType.Ident);
         expect(TokenType.Colon);
         Token t=expect(TokenType.Ty);
         String type="";
-        if(t.getValueString().equals("int")){
-            addSymbol(k.getValueString(), false, false, "int", k.getStartPos());
-            if(check(TokenType.Assign)){
-                next();
-                instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));
-                type=AnalyseAssign();
-                declareSymbol(k.getValueString(),k.getStartPos());
-                if(type=="int") {
-                    instructions.add(new Instruction(Operation.Store64));
-                }
-                else{
-                    throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
-                }
-            }
-        }
-        else if(t.getValueString().equals("double")){
-            addSymbol(k.getValueString(), false, false, "double", k.getStartPos());
-            if(check(TokenType.Assign)){
-                next();
-                instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));
-                type=AnalyseAssign();
-                if(type=="double") {
-                    instructions.add(new Instruction(Operation.Store64));
-                }
-                else{
-                    throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
-                }
-            }
+        int offset;
+        if(depth==0){
+            midCode.addGlobalVar(k.getValueString(),k.getStartPos());
+            midCode.addGlobalVar(new GlobalSymbol(k.getValueString(),false));
+            offset=getThisRankOffset(depth);
         }
         else{
-            throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+            if(depth==1){
+                func.notInFnParams(k.getValueString(),k.getStartPos());
+            }
+            func.addLoc();
+            offset=func.getLocSlots()-1;
+        }
+        addSymbol(k.getValueString(),false,false,t.getValueString(),k.getStartPos(),depth,offset);
+        if(check(TokenType.Assign)){
+            next();
+            if(depth==0){
+                offset=MidCode.getMidCode().getNextGlobalVarOffset();
+                func.addInstruction(new Instruction(Operation.GlobA,offset-1,4));
+            }
+            else{
+                offset=func.getNextLocOffset();
+                func.addInstruction(new Instruction(Operation.LocA,offset,4));
+            }
+            type=AnalyseAssign(func,depth);
+            if(type.equals(t.getValueString())) {
+                func.addInstruction(new Instruction(Operation.Store64));
+            }
+            else{
+                throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
+            }
+            declareSymbol(k.getValueString(),k.getStartPos(),depth);
         }
         expect(TokenType.Semicolon);
     }
 
-    private void AnalyseConst_decl_stmt() throws CompileError{
+    private void AnalyseConst_decl_stmt(FunctionList func,int depth) throws CompileError{
         String type="";
         expect(TokenType.Const);
         Token k=expect(TokenType.Ident);
         expect(TokenType.Colon);
         Token t=expect(TokenType.Ty);
         expect(TokenType.Assign);
-        if(t.getValueString().equals("int")){
-            addSymbol(k.getValueString(), false, true, "int", k.getStartPos());
-            instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));//取出地址
-            type=AnalyseAssign();
-            if(type=="int") {
-                instructions.add(new Instruction(Operation.Store64));//存贮数据
-            }
-            else{
-                throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
-            }
-        }
-        else if(t.getValueString().equals("double")){
-            addSymbol(k.getValueString(), false, true, "double", k.getStartPos());
-            instructions.add(new Instruction(Operation.GlobA,getOffset(k.getValueString(),k.getStartPos())));
-            type=AnalyseAssign();
-            if(type=="double") {
-                instructions.add(new Instruction(Operation.Store64));
-            }
-            else{
-                throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
-            }
+        int offset;
+        if(depth==0){
+            midCode.addGlobalVar(k.getValueString(),k.getStartPos());
+            midCode.addGlobalVar(new GlobalSymbol(k.getValueString(),false));
+            offset=getThisRankOffset(depth);
         }
         else{
-            throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
+            if(depth==1){
+                func.notInFnParams(k.getValueString(),k.getStartPos());
+            }
+            func.addLoc();
+            offset=func.getLocSlots()-1;
         }
+        addSymbol(k.getValueString(),true,true,t.getValueString(),k.getStartPos(),depth,offset);
+        if(depth==0){
+            offset=MidCode.getMidCode().getNextGlobalVarOffset();
+            func.addInstruction(new Instruction(Operation.GlobA,offset-1,4));
+        }
+        else{
+            offset=func.getNextLocOffset();
+            func.addInstruction(new Instruction(Operation.LocA,offset,4));
+        }
+        type=AnalyseAssign(func,depth);
+        if(type.equals(t.getValueString())) {
+            func.addInstruction(new Instruction(Operation.Store64));
+        }
+        else{
+            throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
+        }
+        //declareSymbol(k.getValueString(),k.getStartPos(),depth);
         expect(TokenType.Semicolon);
     }
 
-    private void AnalyseIf() throws CompileError{
+    private void AnalyseIf(FunctionList func,int depth) throws CompileError{
         expect(TokenType.If);
-        AnalyseAssign();
+        AnalyseAssign(func, depth);
         ArrayList<Integer> add=new ArrayList<Integer>();
         ArrayList<Integer> nextAdd=new ArrayList<Integer>();
         ArrayList<Integer> end=new ArrayList<Integer>();
         int end1;
         int k1=0;
-        instructions.add(new Instruction(Operation.BrTrue,1));
-        add.add(instructions.size());//需要修改跳转地址的位置
-        instructions.add(new Instruction(Operation.Br,0));
-        AnalyseBlock();
-        end.add(instructions.size());//跳出if else语句需要修改的跳转地址位置
-        instructions.add(new Instruction(Operation.Br,0));
+        func.addInstruction(new Instruction(Operation.BrTrue,1));
+        add.add(func.getInstructionsLength());//需要修改跳转地址的位置
+        func.addInstruction(new Instruction(Operation.Br,0));
+        AnalyseBlock(func,depth);
+        end.add(func.getInstructionsLength());//跳出if else语句需要修改的跳转地址位置
+        func.addInstruction(new Instruction(Operation.Br,0));
         if(check(TokenType.Else)){
             next();
             while (check(TokenType.If)){
                 expect(TokenType.If);
-                nextAdd.add(instructions.size());//回填地址
-                AnalyseAssign();
-                instructions.add(new Instruction(Operation.BrTrue,1));
-                add.add(instructions.size());//需要修改跳转地址的位置
-                instructions.add(new Instruction(Operation.Br,0));
-                AnalyseBlock();
-                end.add(instructions.size());
-                instructions.add(new Instruction(Operation.Br,0));
+                nextAdd.add(func.getInstructionsLength());//回填地址
+                AnalyseAssign(func, depth);
+                func.addInstruction(new Instruction(Operation.BrTrue,1));
+                add.add(func.getInstructionsLength());//需要修改跳转地址的位置
+                func.addInstruction(new Instruction(Operation.Br,0));
+                AnalyseBlock(func, depth);
+                end.add(func.getInstructionsLength());
+                func.addInstruction(new Instruction(Operation.Br,0));
                 if (!check(TokenType.Else)){
                     k1=1;
                     break;
@@ -648,61 +880,68 @@ public final class Analyser {
                     next();
                 }
             }
-            nextAdd.add(instructions.size());
+            nextAdd.add(func.getInstructionsLength());
             if(k1==0){
-                AnalyseBlock();
+                AnalyseBlock(func, depth);
             }
-            end1=instructions.size();//结束地址
+            end1=func.getInstructionsLength();//结束地址
             for(int i=0;i<add.size();i++){
-                instructions.set(add.get(i),new Instruction(Operation.Br,nextAdd.get(i)-add.get(i)-1));
+                func.setBrInstructionValue(add.get(i),new Instruction(Operation.Br,nextAdd.get(i)-add.get(i)-1));
             }
             for(int i=0;i<end.size();i++){
-                instructions.set(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1));
+                func.setBrInstructionValue(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1));
             }
         }
     }
 
-    private void AnalyseWhile() throws CompileError{
+    private void AnalyseWhile(FunctionList func,int depth) throws CompileError{
         expect(TokenType.While);
-        int begin=instructions.size();
-        instructions.add(new Instruction(Operation.Br,0));
-        AnalyseAssign();
-        instructions.add(new Instruction(Operation.BrTrue,1));
-        int add=instructions.size();
-        instructions.add(new Instruction(Operation.Br,0));
-        AnalyseBlock();
-        instructions.add(new Instruction(Operation.Br,begin-instructions.size()));
-        int end=instructions.size();
-        instructions.set(add,new Instruction(Operation.Br,end-add-1));
+        int begin=func.getInstructionsLength();
+        func.addInstruction(new Instruction(Operation.Br,0));
+        AnalyseAssign(func, depth);
+        func.addInstruction(new Instruction(Operation.BrTrue,1));
+        int add=func.getInstructionsLength();
+        func.addInstruction(new Instruction(Operation.Br,0));
+        AnalyseBlock(func, depth);
+        func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength()));
+        int end=func.getInstructionsLength();
+        func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1));
     }
 
-    private void AnalyseReturn() throws CompileError{
+    private void AnalyseReturn(FunctionList func,int depth) throws CompileError{
         expect(TokenType.Return);
-        AnalyseAssign();
+        String type="void";
+        if(!check(TokenType.Semicolon)){
+            type=AnalyseAssign(func, depth);
+        }
+        func.returnFn(type, peek().getStartPos());
+        func.addInstruction(new Instruction(Operation.Ret));
         expect(TokenType.Semicolon);
     }
 
-    private void AnalyseBlock() throws CompileError{
+    private void AnalyseBlock(FunctionList func,int depth) throws CompileError{
+        depth++;
         expect(TokenType.Lbrace);
         while(!check(TokenType.Rbrace)){
-            AnalyseStatement();
+            AnalyseStatement(func, depth);
         }
         expect(TokenType.Rbrace);
+        popRank(depth);
     }
 
-    private void AnalyseEmpty() throws CompileError{
+    private void AnalyseEmpty(FunctionList func,int depth) throws CompileError{
         expect(TokenType.Semicolon);
     }
-
 
     private void AnalyseFunction() throws CompileError{
         expect(TokenType.Fn);
         Token ident=expect(TokenType.Ident);
-        addSymbol(ident.getValueString(),true,false,"Func",ident.getStartPos());
-        ArrayList<Token> token=new ArrayList<>();
+        FunctionList func=new FunctionList((ident.getValueString()));
+        midCode.addGlobalSymbol(ident.getValueString(),ident.getStartPos());
+        midCode.addFunction(func);
         expect(TokenType.LParen);
         while (!check(TokenType.RParen)){
-            token.add(AnalyseFunctionParam());
+            AnalyseFunctionParam(func);
             if(check(TokenType.Comma)){
                 next();
             }
@@ -713,19 +952,28 @@ public final class Analyser {
         expect(TokenType.RParen);
         expect(TokenType.Arrow);
         Token ty=expect(TokenType.Ty);
-        addFunc(ident.getValueString(),ident.getStartPos(),ident.getValueString(),ty.getValueString(),token,instructions.size(),0);
-        AnalyseBlock();
-        setFuncEnd(ident.getValueString(),instructions.size());
-        instructions.add(new Instruction(Operation.Ret,0));
+        func.setReturn(ty.getValueString());
+        AnalyseBlock(func,0);
+        if(func.isReturned()){
+            if(!func.checkReturnRoutes()){
+                throw new AnalyzeError(ErrorCode.ExpectedToken, peek().getStartPos());
+            }
+        }
+        else {
+            func.addInstruction(new Instruction(Operation.Ret));
+            func.returnFn("void",ident.getStartPos());
+        }
     }
 
-    private Token AnalyseFunctionParam() throws CompileError{
+    private void AnalyseFunctionParam(FunctionList func) throws CompileError{
+        boolean isConst=false;
         if(check(TokenType.Const)){
+            isConst=true;
             next();
         }
         Token ident=expect(TokenType.Ident);
         expect(TokenType.Colon);
         Token ty=expect(TokenType.Ty);
-        return ident;
+        func.addParam(ident.getValueString(),isConst,ty.getValueString(),ident.getStartPos());
     }
 }

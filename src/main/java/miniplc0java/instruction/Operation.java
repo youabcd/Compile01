@@ -39,5 +39,6 @@ public enum Operation {
     PrintS,
     PrintLN,
     StackAlloc,
+    Arga,
     Panic
 }

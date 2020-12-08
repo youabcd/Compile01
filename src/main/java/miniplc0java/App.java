@@ -13,6 +13,12 @@ import java.util.Scanner;
 import miniplc0java.analyser.Analyser;
 import miniplc0java.error.CompileError;
 import miniplc0java.instruction.Instruction;
+import miniplc0java.instruction.FunctionList;
+import miniplc0java.instruction.MidCode;
+import miniplc0java.instruction.WriteFile;
+import miniplc0java.instruction.Operation;
+import miniplc0java.instruction.FunctionParam;
+import miniplc0java.instruction.GlobalSymbol;
 import miniplc0java.tokenizer.StringIter;
 import miniplc0java.tokenizer.Token;
 import miniplc0java.tokenizer.TokenType;
@@ -76,19 +82,13 @@ public class App {
         if (result.getBoolean("tokenize")) {
             // tokenize
             var tokens = new ArrayList<Token>();
-            try {
+
                 while (true) {
                     var token = tokenizer.nextToken();
                     if (token.getTokenType().equals(TokenType.EOF)) {
                         break;
                     }
                     tokens.add(token);
-                }
-            } catch (Exception e) {
-                // 遇到错误不输出，直接退出
-                System.err.println(e);
-                System.exit(0);
-                return;
             }
             for (Token token : tokens) {
                 output.println(token.toString());
@@ -97,20 +97,9 @@ public class App {
             // analyze
             var analyzer = new Analyser(tokenizer);
             List<Instruction> instructions;
-            try {
                 instructions = analyzer.analyse();
 
-                MiniVm mvm=new MiniVm(instructions);
-                mvm.Run();//运行编译代码
-            } catch (Exception e) {
-                // 遇到错误不输出，直接退出
-                System.err.println(e);
-                System.exit(0);
-                return;
-            }
-            for (Instruction instruction : instructions) {
-                output.println(instruction.toString());
-            }
+                output.println(MidCode.getMidCode().toString());
         } else {
             System.err.println("Please specify either '--analyse' or '--tokenize'.");
             System.exit(3);

@@ -1,55 +1,84 @@
-GlobA 3
-Push 20
-Store64
-GlobA 4
-Push 10
-Store64
-GlobA 1
+x1
+test
+main
+_start
+
+fn [3]0 0 -> 0 {
+GlobA 0
 Push 1
 Store64
-GlobA 2
+StackAlloc 0
+Call 2
+}
+
+fn [1]0 0 -> 1 {
+GlobA 0
+Load64 0
+Ret
+}
+
+fn [2]4 0 -> 0 {
+LocA 2
+Push 4626322717216342016
+Store64
+LocA 3
+Push 10
+Store64
+LocA 0
+Push 4607182418800017408
+Store64
+LocA 1
 Push 1
 Push 2
 AddI
 Store64
-GlobA 1
+LocA 1
+StackAlloc 1
+Call 1
+Store64
+LocA 0
 Load64 0
 Push 0
 CmpF
 SetLT
 BrTrue 1
 Br 4
-GlobA 2
-Push 0
-Store64
-Br 14
-GlobA 1
-Load64 0
+LocA 1
 Push 1
+Store64
+Br 19
+LocA 0
+Load64 0
+Push 4607182418800017408
 CmpF
 SetLT
 BrTrue 1
-Br 4
-GlobA 2
+Br 6
+LocA 1
+Load64 0
 Push 1
-Store64
-Br 3
-GlobA 2
+CmpI
+Not
+Br 6
+LocA 1
+Load64 0
 Push 2
-Store64
+CmpI
+SetGT
+Not
 Br 0
-GlobA 2
+LocA 1
 Load64 0
 Push 5
 CmpI
 SetLT
 BrTrue 1
-Br 7
-GlobA 2
-GlobA 4
-Load64 0
+Br 4
+LocA 1
 Push 5
-AddI
 Store64
-Br -14
+Br -11
 Ret
+}
+
+
