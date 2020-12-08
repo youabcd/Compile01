@@ -15,6 +15,7 @@ import miniplc0java.tokenizer.Token;
 import miniplc0java.tokenizer.TokenType;
 import miniplc0java.tokenizer.Tokenizer;
 import miniplc0java.util.Pos;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.*;
 
@@ -38,10 +39,14 @@ public final class Analyser {
         this.tokenizer = tokenizer;
     }
 
-    public List<Instruction> analyse() throws CompileError {
+    /*public List<Instruction> analyse() throws CompileError {
         analyseProgram();
         //return midCode;
         return null;
+    }*/
+    public MidCode analyse() throws CompileError{
+        analyseProgram();
+        return midCode;
     }
 
     /**

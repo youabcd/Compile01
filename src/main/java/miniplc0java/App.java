@@ -79,7 +79,11 @@ public class App {
         var iter = new StringIter(scanner);
         var tokenizer = tokenize(iter);
 
-        if (result.getBoolean("tokenize")) {
+        var analyzer = new Analyser(tokenizer);
+        MidCode m=analyzer.analyse();
+        WriteFile.writeO0File(m, outputFileName);
+
+        /*if (result.getBoolean("tokenize")) {
             // tokenize
             var tokens = new ArrayList<Token>();
 
@@ -96,21 +100,25 @@ public class App {
         } else if (result.getBoolean("analyse")) {
             // analyze
             var analyzer = new Analyser(tokenizer);
-            List<Instruction> instructions;
-                instructions = analyzer.analyse();
+            //List<Instruction> instructions;
+            //instructions = analyzer.analyse();
 
-                output.println(MidCode.getMidCode().toString());
+            MidCode m=analyzer.analyse();
+
+            //output.println(MidCode.getMidCode().toString());
+            WriteFile.writeO0File(m, outputFileName);
+
         } else {
             System.err.println("Please specify either '--analyse' or '--tokenize'.");
             System.exit(3);
-        }
+        }*/
     }
 
     private static ArgumentParser buildArgparse() {
         var builder = ArgumentParsers.newFor("miniplc0-java");
         var parser = builder.build();
-        parser.addArgument("-t", "--tokenize").help("Tokenize the input").action(Arguments.storeTrue());
-        parser.addArgument("-l", "--analyse").help("Analyze the input").action(Arguments.storeTrue());
+        //parser.addArgument("-t", "--tokenize").help("Tokenize the input").action(Arguments.storeTrue());
+        //parser.addArgument("-l", "--analyse").help("Analyze the input").action(Arguments.storeTrue());
         parser.addArgument("-o", "--output").help("Set the output file").required(true).dest("output")
                 .action(Arguments.store());
         parser.addArgument("file").required(true).dest("input").action(Arguments.store()).help("Input file");
