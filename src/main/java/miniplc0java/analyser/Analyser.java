@@ -674,8 +674,9 @@ public final class Analyser {
                 }
                 // 查找函数参数表
                 else if ((offset=func.getParamOffset(a.getValueString())) >= 0) {
-                    if (func.haveRet())
+                    /*if (func.haveRet()) {
                         offset++;
+                    }*/
                     type=func.getOffsetParam(offset).getType();
                     func.addInstruction(new Instruction(Operation.Arga, offset, 4));
                 }
