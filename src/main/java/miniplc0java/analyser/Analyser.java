@@ -581,14 +581,23 @@ public final class Analyser {
     private String AnalyseFactor(FunctionList func,int depth) throws CompileError {
         //<因子>::=Ident|Uint|(<表达式>)
         String type="void";
-        boolean negate;
-        if (nextIf(TokenType.Minus) != null) {//负数显示为0-(Uint|Ident|<***>)
+        boolean negate=false;
+        /*if (nextIf(TokenType.Minus) != null) {//负数显示为0-(Uint|Ident|<***>)
             negate = true;
             // 计算结果需要被 0 减
         }
         else {//防止a=+1;此类情况
             nextIf(TokenType.Plus);
             negate = false;
+        }*/
+
+        if(check(TokenType.Minus)){
+            expect(TokenType.Minus);
+            negate=true;
+        }
+        if(check(TokenType.Plus)){
+            expect(TokenType.Plus);
+            negate=false;
         }
 
         if (check(TokenType.Ident)) {
@@ -647,7 +656,7 @@ public final class Analyser {
                     func.addInstruction(new Instruction(Operation.StackAlloc, calledFunc.getReturnSlots(), 4));
                     next();
                     ArrayList<String> paramType = new ArrayList<>();
-                    while(!check(TokenType.RParen)){
+                    /*while(!check(TokenType.RParen)){
                         paramType.add(AnalyseAssign(func,depth));
                         if(check(TokenType.Comma)){
                             next();
@@ -656,8 +665,8 @@ public final class Analyser {
                             break;
                         }
                     }
-                    expect(TokenType.RParen);
-                    /*if (check(TokenType.RParen)) {
+                    expect(TokenType.RParen);*/
+                    if (check(TokenType.RParen)) {
                         expect(TokenType.RParen);
                     }
                     else {
@@ -667,7 +676,7 @@ public final class Analyser {
                             paramType.add(AnalyseAssign(func, depth));
                         }
                         expect(TokenType.RParen);
-                    }*/
+                    }
                     //TODO 0-ac11 ac3-1 ac4-1 ac4 ac6 ac9
                     calledFunc.checkParams(a.getStartPos(), paramType);
                     func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()) ,4));
@@ -717,6 +726,9 @@ public final class Analyser {
             Token b=expect(TokenType.Char);
             func.addInstruction(new Instruction(Operation.Push,(int)((char)(b.getValue())), 8 ));
         }
+        else if(check(TokenType.Str)){
+
+        }
         else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
             expect(TokenType.LParen);
@@ -724,7 +736,6 @@ public final class Analyser {
             expect(TokenType.RParen);
         }
         else if(check(TokenType.None)){
-
         }
         //TODO 0-ac3
         else {
