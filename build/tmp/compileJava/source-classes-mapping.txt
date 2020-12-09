@@ -27,6 +27,8 @@ miniplc0java/tokenizer/Tokenizer.java
  miniplc0java.tokenizer.Tokenizer
 miniplc0java/error/AnalyzeError.java
  miniplc0java.error.AnalyzeError
+miniplc0java/instruction/WriteFile.java
+ miniplc0java.instruction.WriteFile
 miniplc0java/vm/MiniVm.java
  miniplc0java.vm.MiniVm
  miniplc0java.vm.MiniVm$1
@@ -37,9 +39,7 @@ miniplc0java/instruction/Instruction.java
  miniplc0java.instruction.Instruction$1
 miniplc0java/instruction/MidCode.java
  miniplc0java.instruction.MidCode
-miniplc0java/App.java
- miniplc0java.App
 miniplc0java/instruction/FunctionList.java
  miniplc0java.instruction.FunctionList
-miniplc0java/instruction/WriteFile.java
- miniplc0java.instruction.WriteFile
+miniplc0java/App.java
+ miniplc0java.App

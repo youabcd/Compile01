@@ -109,8 +109,18 @@ public class Instruction {
 
     public boolean hasX(){
         switch (this.opt) {
+            case Call:
+            case Push:
+            case GlobA:
+            case LocA:
+            case StackAlloc:
+            case BrTrue:
+            case Br:
+            case BrFalse:
+            case ArgA:
+            case CallName:
+                return true;
             case Pop:
-
             case Not:
             case Ret:
             case AddF:
@@ -140,18 +150,6 @@ public class Instruction {
             case ScanI:
             case Load64:
             case Panic:
-                return false;
-            case Call:
-            case Push:
-            case GlobA:
-            case LocA:
-            case StackAlloc:
-            case BrTrue:
-            case Br:
-            case BrFalse:
-            case ArgA:
-            case CallName:
-                return true;
             default:
                 return false;
         }
