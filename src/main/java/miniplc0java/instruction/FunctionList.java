@@ -251,11 +251,14 @@ public class FunctionList {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("fn [").append(MidCode.getMidCode().getFnNumber(this.fnName)).
-                append("]").append(locSlots).append(" ").append(paramSlots).append(" -> ").
+                append("] ").append(locSlots).append(" ").append(paramSlots).append(" -> ").
                 append(returnSlots).append(" {\n");
 
+        int xh=0;
         for(Instruction i : fnBody){
+            sb.append(xh+": ");
             sb.append(i).append("\n");
+            xh++;
         }
         sb.append("}\n");
 

@@ -142,9 +142,9 @@ public class Instruction {
 
             case ScanI:
 
-            case SetGT:
+            case SetGt:
 
-            case SetLT:
+            case SetLt:
 
             case StackAlloc:
 
@@ -166,9 +166,10 @@ public class Instruction {
 
             case Store64:
 
+            case ArgA:
+
             case CallName:
                 return true;
-            case Arga:
 
             default:
                 return false;
@@ -179,11 +180,11 @@ public class Instruction {
     public String toString() {
         switch (this.opt) {
             case Push:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case Pop:
                 return String.format("%s",this.opt);
             case Br:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case Not:
                 return String.format("%s",this.opt);
             case Ret:
@@ -193,7 +194,7 @@ public class Instruction {
             case AddI:
                 return String.format("%s",this.opt);
             case Call:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case CmpF:
                 return String.format("%s",this.opt);
             case CmpI:
@@ -207,7 +208,7 @@ public class Instruction {
             case ItoF:
                 return String.format("%s",this.opt);
             case LocA:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case MulF:
                 return String.format("%s",this.opt);
             case MulI:
@@ -221,7 +222,7 @@ public class Instruction {
             case SubI:
                 return String.format("%s",this.opt);
             case GlobA:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case Panic:
                 return String.format("%s",this.opt);
             case ScanC:
@@ -230,16 +231,16 @@ public class Instruction {
                 return String.format("%s",this.opt);
             case ScanI:
                 return String.format("%s",this.opt);
-            case SetGT:
+            case SetGt:
                 return String.format("%s",this.opt);
-            case SetLT:
+            case SetLt:
                 return String.format("%s",this.opt);
             case StackAlloc:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case BrTrue:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case Load64:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s",this.opt);
             case PrintC:
                 return String.format("%s",this.opt);
             case PrintF:
@@ -249,14 +250,15 @@ public class Instruction {
             case PrintS:
                 return String.format("%s",this.opt);
             case BrFalse:
-                return String.format("%s %s",this.opt,this.x);
+                return String.format("%s(%s)",this.opt,this.x);
             case PrintLN:
                 return String.format("%s",this.opt);
             case Store64:
                 return String.format("%s",this.opt);
             case CallName:
-                return String.format("%s %s",this.opt,this.x);
-            case Arga:
+                return String.format("%s(%s)",this.opt,this.x);
+            case ArgA:
+                return String.format("%s(%s)",this.opt,this.x);
             default:
                 return "Panic";
         }

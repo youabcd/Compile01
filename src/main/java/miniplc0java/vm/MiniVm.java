@@ -59,8 +59,8 @@ public class MiniVm {
             case PrintC:{}
             case Load64:{}
             case BrTrue:{}
-            case SetLT:{}
-            case SetGT:{}
+            case SetLt:{}
+            case SetGt:{}
             case ScanI:{}
             case ScanF:{}
             case ScanC:{}
@@ -86,6 +86,8 @@ public class MiniVm {
             case Not:{}
             case Br:{}
             case Pop:{}
+            case StackAlloc:{}
+            case ArgA:{}
             case Push:{}
                 break;
             default:

@@ -60,12 +60,12 @@ public class App {
             }
         }
 
-        PrintStream output;
+        PrintStream asm;
         if (outputFileName.equals("-")) {
-            output = System.out;
+            asm = System.out;
         } else {
             try {
-                output = new PrintStream(new FileOutputStream(outputFileName));
+                asm = new PrintStream(new FileOutputStream(outputFileName));
             } catch (FileNotFoundException e) {
                 System.err.println("Cannot open output file.");
                 e.printStackTrace();
@@ -81,8 +81,8 @@ public class App {
 
         var analyzer = new Analyser(tokenizer);
         MidCode m=analyzer.analyse();
-        //output.println(MidCode.getMidCode().toString());
-        WriteFile.writeO0File(m, outputFileName);
+        asm.println(MidCode.getMidCode().toString());
+        //WriteFile.writeO0File(m, outputFileName);
 
         /*if (result.getBoolean("tokenize")) {
             // tokenize

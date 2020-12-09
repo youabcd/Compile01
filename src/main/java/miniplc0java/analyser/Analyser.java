@@ -455,14 +455,14 @@ public final class Analyser {
                 throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
             if (t.getTokenType() == TokenType.Gt) {
-                func.addInstruction(new Instruction(Operation.SetGT));
+                func.addInstruction(new Instruction(Operation.SetGt));
             } else if (t.getTokenType() == TokenType.Lt) {
-                func.addInstruction(new Instruction(Operation.SetLT));
+                func.addInstruction(new Instruction(Operation.SetLt));
             } else if (t.getTokenType() == TokenType.Ge) {
-                func.addInstruction(new Instruction(Operation.SetLT));
+                func.addInstruction(new Instruction(Operation.SetLt));
                 func.addInstruction(new Instruction(Operation.Not));
             } else if (t.getTokenType() == TokenType.Le) {
-                func.addInstruction(new Instruction(Operation.SetGT));
+                func.addInstruction(new Instruction(Operation.SetGt));
                 func.addInstruction(new Instruction(Operation.Not));
             } else if (t.getTokenType() == TokenType.Eq) {
                 func.addInstruction(new Instruction(Operation.Not));
@@ -698,7 +698,7 @@ public final class Analyser {
                     if(func.haveRet()){
                         offset++;
                     }
-                    func.addInstruction(new Instruction(Operation.Arga, offset, 4));
+                    func.addInstruction(new Instruction(Operation.ArgA, offset, 4));
                 }
                 // 查找变量表
                 else {
@@ -940,7 +940,7 @@ public final class Analyser {
     private void AnalyseReturn(FunctionList func,int depth) throws CompileError{
         expect(TokenType.Return);
         if(!func.getReturnType().equals("void")){
-            func.addInstruction(new Instruction(Operation.Arga,0,4));
+            func.addInstruction(new Instruction(Operation.ArgA,0,4));
         }
         String type="void";
         if(!check(TokenType.Semicolon)){

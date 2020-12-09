@@ -22,8 +22,8 @@ public enum Operation {
     NegF,
     ItoF,
     FtoI,
-    SetLT,
-    SetGT,
+    SetLt,
+    SetGt,
     Br,
     BrTrue,
     BrFalse,
@@ -39,6 +39,6 @@ public enum Operation {
     PrintS,
     PrintLN,
     StackAlloc,
-    Arga,
+    ArgA,
     Panic
 }
