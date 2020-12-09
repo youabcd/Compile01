@@ -37,9 +37,9 @@ miniplc0java/instruction/Instruction.java
  miniplc0java.instruction.Instruction$1
 miniplc0java/instruction/MidCode.java
  miniplc0java.instruction.MidCode
-miniplc0java/instruction/WriteFile.java
- miniplc0java.instruction.WriteFile
-miniplc0java/instruction/FunctionList.java
- miniplc0java.instruction.FunctionList
 miniplc0java/App.java
  miniplc0java.App
+miniplc0java/instruction/FunctionList.java
+ miniplc0java.instruction.FunctionList
+miniplc0java/instruction/WriteFile.java
+ miniplc0java.instruction.WriteFile
