@@ -21,7 +21,7 @@ public class Tokenizer {
      */
     public Token nextToken() throws TokenizeError {
         it.readAll();
-        while(it.isEOF()){
+        while(!it.isEOF()){
             System.out.println(it.nextChar());
         }
 
