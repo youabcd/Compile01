@@ -22,7 +22,7 @@ public class Tokenizer {
     public Token nextToken() throws TokenizeError {
         it.readAll();
         while(!it.isEOF()){
-            System.out.println(it.nextChar());
+            System.out.print(it.nextChar());
         }
 
         // 跳过之前的所有空白字符
