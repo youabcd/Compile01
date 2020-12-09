@@ -1,238 +1,507 @@
-g
-h
-f
-e
-EightWhile
+a0
+a1
+a2
+a3
+a4
+a5
+a6
+a7
+a8
+a9
+a10
+a11
+a12
+a13
+a14
+a15
+a16
+a17
+a18
+a19
+a20
+a21
+a22
+a23
+a24
+a25
+a26
+a27
+a28
+a29
+a30
+a31
+a32
+a33
+a34
+a35
+a36
+a37
+a38
+a39
+testParam8
+testParam16
+testParam32
 putint
+putln
+putint
+putln
+putint
+putln
 main
 _start
 
-fn [7] 0 0 -> 0 {
+fn [50] 0 0 -> 0 {
 0: StackAlloc(0)
-1: Call(2)
+1: Call(4)
 }
 
-fn [4] 4 0 -> 1 {
-0: LocA(0)
-1: Push(5)
-2: Store64
-3: LocA(1)
-4: Push(6)
-5: Store64
-6: LocA(2)
-7: Push(7)
-8: Store64
-9: LocA(3)
-10: Push(10)
-11: Store64
-12: Br(0)
-13: LocA(0)
-14: Load64
-15: Push(20)
-16: CmpI
-17: SetLt
-18: BrTrue(1)
-19: Br(154)
-20: LocA(0)
-21: LocA(0)
+fn [40] 0 8 -> 1 {
+0: ArgA(0)
+1: ArgA(1)
+2: Load64
+3: ArgA(2)
+4: Load64
+5: AddI
+6: ArgA(3)
+7: Load64
+8: AddI
+9: ArgA(4)
+10: Load64
+11: AddI
+12: ArgA(5)
+13: Load64
+14: AddI
+15: ArgA(6)
+16: Load64
+17: AddI
+18: ArgA(7)
+19: Load64
+20: AddI
+21: ArgA(8)
 22: Load64
-23: Push(3)
-24: AddI
-25: Store64
-26: Br(0)
-27: LocA(1)
-28: Load64
-29: Push(10)
-30: CmpI
-31: SetLt
-32: BrTrue(1)
-33: Br(133)
-34: LocA(1)
-35: LocA(1)
-36: Load64
-37: Push(1)
-38: AddI
-39: Store64
-40: Br(0)
-41: LocA(2)
-42: Load64
-43: Push(7)
-44: CmpI
-45: Not
-46: BrTrue(1)
-47: Br(112)
-48: LocA(2)
-49: LocA(2)
-50: Load64
-51: Push(1)
-52: SubI
-53: Store64
-54: Br(0)
-55: LocA(3)
-56: Load64
-57: Push(20)
-58: CmpI
-59: SetLt
-60: BrTrue(1)
-61: Br(91)
-62: LocA(3)
-63: LocA(3)
-64: Load64
-65: Push(3)
-66: AddI
-67: Store64
-68: Br(0)
-69: GlobA(3)
-70: Load64
-71: Push(1)
-72: CmpI
-73: SetGt
-74: BrTrue(1)
-75: Br(70)
-76: GlobA(3)
-77: GlobA(3)
-78: Load64
-79: Push(1)
-80: SubI
-81: Store64
-82: Br(0)
-83: GlobA(2)
-84: Load64
-85: Push(2)
-86: CmpI
-87: SetGt
-88: BrTrue(1)
-89: Br(49)
-90: GlobA(2)
-91: GlobA(2)
-92: Load64
-93: Push(2)
-94: SubI
-95: Store64
-96: Br(0)
-97: GlobA(0)
-98: Load64
-99: Push(3)
-100: CmpI
-101: SetLt
-102: BrTrue(1)
-103: Br(28)
-104: GlobA(0)
-105: GlobA(0)
-106: Load64
-107: Push(10)
-108: AddI
-109: Store64
-110: Br(0)
-111: GlobA(1)
-112: Load64
-113: Push(10)
-114: CmpI
-115: SetLt
-116: BrTrue(1)
-117: Br(7)
-118: GlobA(1)
-119: GlobA(1)
-120: Load64
-121: Push(8)
-122: AddI
-123: Store64
-124: Br(-14)
-125: GlobA(1)
-126: GlobA(1)
-127: Load64
-128: Push(1)
-129: SubI
-130: Store64
-131: Br(-35)
-132: GlobA(0)
-133: GlobA(0)
-134: Load64
-135: Push(8)
-136: SubI
-137: Store64
-138: Br(-56)
-139: GlobA(2)
-140: GlobA(2)
-141: Load64
-142: Push(1)
-143: AddI
-144: Store64
-145: Br(-77)
-146: GlobA(3)
-147: GlobA(3)
-148: Load64
-149: Push(1)
-150: AddI
-151: Store64
-152: Br(-98)
-153: LocA(3)
-154: LocA(3)
-155: Load64
-156: Push(1)
-157: SubI
-158: Store64
-159: Br(-119)
-160: LocA(2)
-161: LocA(2)
-162: Load64
-163: Push(1)
-164: AddI
-165: Store64
-166: Br(-140)
-167: LocA(1)
-168: LocA(1)
-169: Load64
-170: Push(2)
-171: SubI
-172: Store64
-173: Br(-161)
-174: ArgA(0)
-175: LocA(0)
-176: Load64
-177: LocA(1)
-178: Load64
-179: LocA(3)
-180: Load64
-181: AddI
-182: AddI
-183: LocA(2)
-184: Load64
-185: AddI
-186: GlobA(3)
-187: Load64
-188: LocA(3)
-189: Load64
-190: AddI
-191: GlobA(0)
-192: Load64
-193: SubI
-194: GlobA(1)
-195: Load64
-196: AddI
-197: SubI
-198: Store64
-199: Ret
+23: AddI
+24: Store64
+25: Ret
 }
 
-fn [6] 0 0 -> 0 {
+fn [41] 0 16 -> 1 {
+0: ArgA(0)
+1: ArgA(1)
+2: Load64
+3: ArgA(2)
+4: Load64
+5: AddI
+6: ArgA(3)
+7: Load64
+8: AddI
+9: ArgA(4)
+10: Load64
+11: SubI
+12: ArgA(5)
+13: Load64
+14: SubI
+15: ArgA(6)
+16: Load64
+17: SubI
+18: ArgA(7)
+19: Load64
+20: SubI
+21: ArgA(8)
+22: Load64
+23: SubI
+24: ArgA(9)
+25: Load64
+26: AddI
+27: ArgA(10)
+28: Load64
+29: AddI
+30: ArgA(11)
+31: Load64
+32: AddI
+33: ArgA(12)
+34: Load64
+35: AddI
+36: ArgA(13)
+37: Load64
+38: AddI
+39: ArgA(14)
+40: Load64
+41: AddI
+42: ArgA(15)
+43: Load64
+44: AddI
+45: ArgA(16)
+46: Load64
+47: AddI
+48: Store64
+49: Ret
+}
+
+fn [42] 0 32 -> 1 {
+0: ArgA(0)
+1: ArgA(1)
+2: Load64
+3: ArgA(2)
+4: Load64
+5: AddI
+6: ArgA(3)
+7: Load64
+8: AddI
+9: ArgA(4)
+10: Load64
+11: AddI
+12: ArgA(5)
+13: Load64
+14: AddI
+15: ArgA(6)
+16: Load64
+17: AddI
+18: ArgA(7)
+19: Load64
+20: AddI
+21: ArgA(8)
+22: Load64
+23: AddI
+24: ArgA(9)
+25: Load64
+26: AddI
+27: ArgA(10)
+28: Load64
+29: AddI
+30: ArgA(11)
+31: Load64
+32: AddI
+33: ArgA(12)
+34: Load64
+35: AddI
+36: ArgA(13)
+37: Load64
+38: AddI
+39: ArgA(14)
+40: Load64
+41: AddI
+42: ArgA(15)
+43: Load64
+44: AddI
+45: ArgA(16)
+46: Load64
+47: AddI
+48: ArgA(17)
+49: Load64
+50: AddI
+51: ArgA(18)
+52: Load64
+53: AddI
+54: ArgA(19)
+55: Load64
+56: SubI
+57: ArgA(20)
+58: Load64
+59: SubI
+60: ArgA(21)
+61: Load64
+62: SubI
+63: ArgA(22)
+64: Load64
+65: SubI
+66: ArgA(23)
+67: Load64
+68: SubI
+69: ArgA(24)
+70: Load64
+71: AddI
+72: ArgA(25)
+73: Load64
+74: AddI
+75: ArgA(26)
+76: Load64
+77: AddI
+78: ArgA(27)
+79: Load64
+80: AddI
+81: ArgA(28)
+82: Load64
+83: AddI
+84: ArgA(29)
+85: Load64
+86: AddI
+87: ArgA(30)
+88: Load64
+89: AddI
+90: ArgA(31)
+91: Load64
+92: AddI
+93: ArgA(32)
+94: Load64
+95: AddI
+96: Store64
+97: Ret
+}
+
+fn [49] 0 0 -> 0 {
 0: GlobA(0)
-1: Push(1)
+1: Push(0)
 2: Store64
 3: GlobA(1)
-4: Push(2)
+4: Push(1)
 5: Store64
-6: GlobA(3)
-7: Push(4)
+6: GlobA(2)
+7: Push(2)
 8: Store64
-9: GlobA(2)
-10: Push(6)
+9: GlobA(3)
+10: Push(3)
 11: Store64
-12: StackAlloc(0)
-13: StackAlloc(1)
-14: Call(1)
-15: CallName(5)
-16: Ret
+12: GlobA(4)
+13: Push(4)
+14: Store64
+15: GlobA(5)
+16: Push(5)
+17: Store64
+18: GlobA(6)
+19: Push(6)
+20: Store64
+21: GlobA(7)
+22: Push(7)
+23: Store64
+24: GlobA(8)
+25: Push(8)
+26: Store64
+27: GlobA(9)
+28: Push(9)
+29: Store64
+30: GlobA(10)
+31: Push(0)
+32: Store64
+33: GlobA(11)
+34: Push(1)
+35: Store64
+36: GlobA(12)
+37: Push(2)
+38: Store64
+39: GlobA(13)
+40: Push(3)
+41: Store64
+42: GlobA(14)
+43: Push(4)
+44: Store64
+45: GlobA(15)
+46: Push(5)
+47: Store64
+48: GlobA(16)
+49: Push(6)
+50: Store64
+51: GlobA(17)
+52: Push(7)
+53: Store64
+54: GlobA(18)
+55: Push(8)
+56: Store64
+57: GlobA(19)
+58: Push(9)
+59: Store64
+60: GlobA(20)
+61: Push(0)
+62: Store64
+63: GlobA(21)
+64: Push(1)
+65: Store64
+66: GlobA(22)
+67: Push(2)
+68: Store64
+69: GlobA(23)
+70: Push(3)
+71: Store64
+72: GlobA(24)
+73: Push(4)
+74: Store64
+75: GlobA(25)
+76: Push(5)
+77: Store64
+78: GlobA(26)
+79: Push(6)
+80: Store64
+81: GlobA(27)
+82: Push(7)
+83: Store64
+84: GlobA(28)
+85: Push(8)
+86: Store64
+87: GlobA(29)
+88: Push(9)
+89: Store64
+90: GlobA(30)
+91: Push(0)
+92: Store64
+93: GlobA(31)
+94: Push(1)
+95: Store64
+96: GlobA(32)
+97: Push(4)
+98: Store64
+99: GlobA(33)
+100: Push(5)
+101: Store64
+102: GlobA(34)
+103: Push(6)
+104: Store64
+105: GlobA(35)
+106: Push(7)
+107: Store64
+108: GlobA(36)
+109: Push(8)
+110: Store64
+111: GlobA(37)
+112: Push(9)
+113: Store64
+114: GlobA(38)
+115: Push(0)
+116: Store64
+117: GlobA(39)
+118: Push(1)
+119: Store64
+120: GlobA(0)
+121: StackAlloc(1)
+122: GlobA(0)
+123: Load64
+124: GlobA(1)
+125: Load64
+126: GlobA(2)
+127: Load64
+128: GlobA(3)
+129: Load64
+130: GlobA(4)
+131: Load64
+132: GlobA(5)
+133: Load64
+134: GlobA(6)
+135: Load64
+136: GlobA(7)
+137: Load64
+138: Call(1)
+139: Store64
+140: StackAlloc(0)
+141: GlobA(0)
+142: Load64
+143: CallName(43)
+144: StackAlloc(0)
+145: CallName(44)
+146: GlobA(0)
+147: StackAlloc(1)
+148: GlobA(32)
+149: Load64
+150: GlobA(33)
+151: Load64
+152: GlobA(34)
+153: Load64
+154: GlobA(35)
+155: Load64
+156: GlobA(36)
+157: Load64
+158: GlobA(37)
+159: Load64
+160: GlobA(38)
+161: Load64
+162: GlobA(39)
+163: Load64
+164: GlobA(8)
+165: Load64
+166: GlobA(9)
+167: Load64
+168: GlobA(10)
+169: Load64
+170: GlobA(11)
+171: Load64
+172: GlobA(12)
+173: Load64
+174: GlobA(13)
+175: Load64
+176: GlobA(14)
+177: Load64
+178: GlobA(15)
+179: Load64
+180: Call(2)
+181: Store64
+182: StackAlloc(0)
+183: GlobA(0)
+184: Load64
+185: CallName(45)
+186: StackAlloc(0)
+187: CallName(46)
+188: GlobA(0)
+189: StackAlloc(1)
+190: GlobA(0)
+191: Load64
+192: GlobA(1)
+193: Load64
+194: GlobA(2)
+195: Load64
+196: GlobA(3)
+197: Load64
+198: GlobA(4)
+199: Load64
+200: GlobA(5)
+201: Load64
+202: GlobA(6)
+203: Load64
+204: GlobA(7)
+205: Load64
+206: GlobA(8)
+207: Load64
+208: GlobA(9)
+209: Load64
+210: GlobA(10)
+211: Load64
+212: GlobA(11)
+213: Load64
+214: GlobA(12)
+215: Load64
+216: GlobA(13)
+217: Load64
+218: GlobA(14)
+219: Load64
+220: GlobA(15)
+221: Load64
+222: GlobA(16)
+223: Load64
+224: GlobA(17)
+225: Load64
+226: GlobA(18)
+227: Load64
+228: GlobA(19)
+229: Load64
+230: GlobA(20)
+231: Load64
+232: GlobA(21)
+233: Load64
+234: GlobA(22)
+235: Load64
+236: GlobA(23)
+237: Load64
+238: GlobA(24)
+239: Load64
+240: GlobA(25)
+241: Load64
+242: GlobA(26)
+243: Load64
+244: GlobA(27)
+245: Load64
+246: GlobA(28)
+247: Load64
+248: GlobA(29)
+249: Load64
+250: GlobA(30)
+251: Load64
+252: GlobA(31)
+253: Load64
+254: Call(3)
+255: Store64
+256: StackAlloc(0)
+257: GlobA(0)
+258: Load64
+259: CallName(47)
+260: StackAlloc(0)
+261: CallName(48)
+262: Ret
 }
 
 

@@ -714,13 +714,13 @@ public final class Analyser {
             // 调用相应的处理函数
             var b=expect(TokenType.Uint);
             type="int";
-            func.addInstruction(new Instruction(Operation.Push,Long.parseLong(b.getValueString())));
+            func.addInstruction(new Instruction(Operation.Push,Long.parseLong(b.getValueString()),8));
         }
         else if(check(TokenType.Double)){
             var b=expect(TokenType.Double);
             double x=Double.parseDouble(b.getValue().toString());
             type="double";
-            func.addInstruction(new Instruction(Operation.Push,Double.doubleToLongBits(x)));
+            func.addInstruction(new Instruction(Operation.Push,Double.doubleToLongBits(x),8));
         }
         else if(check(TokenType.Char)){//TODO 2-ac1 ac2
             Token b=expect(TokenType.Char);
@@ -883,24 +883,24 @@ public final class Analyser {
         ArrayList<Integer> end=new ArrayList<Integer>();
         int end1;
         int k1=0;
-        func.addInstruction(new Instruction(Operation.BrTrue,1));
+        func.addInstruction(new Instruction(Operation.BrTrue,1,4));
         add.add(func.getInstructionsLength());//需要修改跳转地址的位置
-        func.addInstruction(new Instruction(Operation.Br,0));
+        func.addInstruction(new Instruction(Operation.Br,0,4));
         AnalyseBlock(func,depth);
         end.add(func.getInstructionsLength());//跳出if else语句需要修改的跳转地址位置
-        func.addInstruction(new Instruction(Operation.Br,0));
+        func.addInstruction(new Instruction(Operation.Br,0,4));
         if(check(TokenType.Else)){
             next();
             while (check(TokenType.If)){
                 expect(TokenType.If);
                 nextAdd.add(func.getInstructionsLength());//回填地址
                 AnalyseAssign(func, depth);
-                func.addInstruction(new Instruction(Operation.BrTrue,1));
+                func.addInstruction(new Instruction(Operation.BrTrue,1,4));
                 add.add(func.getInstructionsLength());//需要修改跳转地址的位置
-                func.addInstruction(new Instruction(Operation.Br,0));
+                func.addInstruction(new Instruction(Operation.Br,0,4));
                 AnalyseBlock(func, depth);
                 end.add(func.getInstructionsLength());
-                func.addInstruction(new Instruction(Operation.Br,0));
+                func.addInstruction(new Instruction(Operation.Br,0,4));
                 if (!check(TokenType.Else)){
                     k1=1;
                     break;
@@ -926,13 +926,13 @@ public final class Analyser {
     private void AnalyseWhile(FunctionList func,int depth) throws CompileError{
         expect(TokenType.While);
         int begin=func.getInstructionsLength();
-        func.addInstruction(new Instruction(Operation.Br,0));
+        func.addInstruction(new Instruction(Operation.Br,0,4));
         AnalyseAssign(func, depth);
-        func.addInstruction(new Instruction(Operation.BrTrue,1));
+        func.addInstruction(new Instruction(Operation.BrTrue,1,4));
         int add=func.getInstructionsLength();
-        func.addInstruction(new Instruction(Operation.Br,0));
+        func.addInstruction(new Instruction(Operation.Br,0,4));
         AnalyseBlock(func, depth);
-        func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength()));
+        func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength(),4));
         int end=func.getInstructionsLength();
         func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1));
     }
