@@ -724,7 +724,7 @@ public final class Analyser {
         }
         else if(check(TokenType.Char)){//TODO 2-ac1 ac2
             Token b=expect(TokenType.Char);
-            func.addInstruction(new Instruction(Operation.Push,(int)((char)(b.getValue())), 8 ));
+            func.addInstruction(new Instruction(Operation.Push,(int)(b.getValue()), 8 ));
         }
         else if(check(TokenType.Str)){
 

@@ -195,27 +195,34 @@ public class Tokenizer {
         Pos ptrstart=it.previousPos();
         StringBuffer sb=new StringBuffer("");
         it.nextChar();//读取第一个'
+        int k=-1;
         while(it.peekChar()!='\''){
             if(it.peekChar()=='\\'){
                 char ch;
                 it.nextChar();
                 if(it.peekChar()=='\''){
                     ch='\'';
+                    k=('\'');
                 }
                 else if(it.peekChar()=='"'){
                     ch='"';
+                    k='"';
                 }
                 else if(it.peekChar()=='\\'){
                     ch='\\';
+                    k='\\';
                 }
                 else if(it.peekChar()=='n'){
                     ch='\n';
+                    k='\n';
                 }
                 else if(it.peekChar()=='t'){
                     ch='\t';
+                    k='\t';
                 }
                 else if(it.peekChar()=='r'){
                     ch='\r';
+                    k='\r';
                 }
                 else{
                     throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
@@ -224,22 +231,25 @@ public class Tokenizer {
                 it.nextChar();
             }
             else {
-                sb.append(it.nextChar());
+                char c=it.nextChar();
+                sb.append(c);
+                k=c;
             }
         }
         it.nextChar();//读取第二个'
         String str=new String(sb);
         char[] ch=str.toCharArray();
-        if(ch.length>1||ch.length==0){
+        if(ch.length!=1){
             throw new TokenizeError(ErrorCode.InvalidInput, it.previousPos());
         }
         //TODO 已修改
+        if(k!=-1){
+            return new Token(TokenType.Char,k,ptrstart,it.currentPos());
+        }
         return new Token(TokenType.Char, str.charAt(0), ptrstart, it.currentPos());
     }
 
-    private Token lexIdentOrKeyword() throws TokenizeError {//判断为标识符或关键字
-        // 请填空：
-        // 直到查看下一个字符不是数字或字母为止:
+    private Token lexIdentOrKeyword() throws TokenizeError {
         Pos ptrstart=it.previousPos();
         StringBuffer x=new StringBuffer("");
         // -- 前进一个字符，并存储这个字符
