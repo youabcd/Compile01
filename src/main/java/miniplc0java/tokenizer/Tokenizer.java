@@ -21,6 +21,9 @@ public class Tokenizer {
      */
     public Token nextToken() throws TokenizeError {
         it.readAll();
+        while(it.isEOF()){
+            System.out.println(it.nextChar());
+        }
 
         // 跳过之前的所有空白字符
         skipSpaceCharacters();
@@ -30,7 +33,7 @@ public class Tokenizer {
         }
 
         char peek = it.peekChar();
-        System.out.print(peek);
+
         if (Character.isDigit(peek)) {//下一个是否为数字
             return lexUInt();
         }
