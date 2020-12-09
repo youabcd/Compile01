@@ -915,10 +915,10 @@ public final class Analyser {
             }
             end1=func.getInstructionsLength();//结束地址
             for(int i=0;i<add.size();i++){
-                func.setBrInstructionValue(add.get(i),new Instruction(Operation.Br,nextAdd.get(i)-add.get(i)-1));
+                func.setBrInstructionValue(add.get(i),new Instruction(Operation.Br,nextAdd.get(i)-add.get(i)-1,4));
             }
             for(int i=0;i<end.size();i++){
-                func.setBrInstructionValue(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1));
+                func.setBrInstructionValue(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1,4));
             }
         }
     }
@@ -934,7 +934,7 @@ public final class Analyser {
         AnalyseBlock(func, depth);
         func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength(),4));
         int end=func.getInstructionsLength();
-        func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1));
+        func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1,4));
     }
 
     private void AnalyseReturn(FunctionList func,int depth) throws CompileError{
