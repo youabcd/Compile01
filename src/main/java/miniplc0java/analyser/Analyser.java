@@ -314,7 +314,7 @@ public final class Analyser {
      * @return 是否为常量
      * @throws AnalyzeError
      */
-    private boolean isConstant(FunctionList func,String name, Pos curPos,int depth) throws AnalyzeError {//TODO
+    private boolean isConstant(FunctionList func,String name, Pos curPos,int depth) throws AnalyzeError {
         SymbolEntry sy;
         int offset=0;
         if ((sy=findBSymbol(name, depth))!=null) {
@@ -334,7 +334,7 @@ public final class Analyser {
     /*
     *获取变量的类型*
     */
-    private String whichType(FunctionList func,String name,Pos curPos,int depth) throws AnalyzeError{//TODO
+    private String whichType(FunctionList func,String name,Pos curPos,int depth) throws AnalyzeError{
         SymbolEntry sy;
         int offset=0;
         if ((sy=findBSymbol(name, depth))!=null) {
@@ -352,7 +352,7 @@ public final class Analyser {
     }
 
     /*是否已定义*/
-    private boolean isInitialized(FunctionList func,String name,Pos curPos,int depth) throws AnalyzeError{//TODO
+    private boolean isInitialized(FunctionList func,String name,Pos curPos,int depth) throws AnalyzeError{
         SymbolEntry sy;
         int offset=0;
         if ((sy=findBSymbol(name, depth))!=null) {

@@ -246,7 +246,7 @@ public class Tokenizer {
         if(k!=-1){
             return new Token(TokenType.Char,k,ptrstart,it.currentPos());
         }
-        return new Token(TokenType.Char, str.charAt(0), ptrstart, it.currentPos());
+        return new Token(TokenType.Char, (int)str.charAt(0), ptrstart, it.currentPos());
     }
 
     private Token lexIdentOrKeyword() throws TokenizeError {
