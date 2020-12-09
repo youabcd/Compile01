@@ -30,6 +30,7 @@ public class Tokenizer {
         }
 
         char peek = it.peekChar();
+        System.out.print(peek);
         if (Character.isDigit(peek)) {//下一个是否为数字
             return lexUInt();
         }
