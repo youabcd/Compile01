@@ -694,10 +694,10 @@ public final class Analyser {
                 }
                 // 查找函数参数表
                 else if ((offset=func.getParamOffset(a.getValueString())) >= 0) {
-                    /*if (func.haveRet()) {
-                        offset++;
-                    }*/
                     type=func.getOffsetParam(offset).getType();
+                    if(func.haveRet()){
+                        offset++;
+                    }
                     func.addInstruction(new Instruction(Operation.Arga, offset, 4));
                 }
                 // 查找变量表
@@ -939,9 +939,13 @@ public final class Analyser {
 
     private void AnalyseReturn(FunctionList func,int depth) throws CompileError{
         expect(TokenType.Return);
+        if(!func.getReturnType().equals("void")){
+            func.addInstruction(new Instruction(Operation.Arga,0,4));
+        }
         String type="void";
         if(!check(TokenType.Semicolon)){
             type=AnalyseAssign(func, depth);
+            func.addInstruction(new Instruction(Operation.Store64));
         }
         func.returnFn(type, peek().getStartPos());
         func.addInstruction(new Instruction(Operation.Ret));
