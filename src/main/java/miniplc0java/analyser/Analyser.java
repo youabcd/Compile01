@@ -875,10 +875,10 @@ public final class Analyser {
         add.add(func.getInstructionsLength());//需要修改跳转地址的位置
         func.addInstruction(new Instruction(Operation.Br,0,4));
         AnalyseBlock(func,depth);
-        end.add(func.getInstructionsLength());//跳出if else语句需要修改的跳转地址位置
-        func.addInstruction(new Instruction(Operation.Br,0,4));
         if(check(TokenType.Else)){
             next();
+            end.add(func.getInstructionsLength());//跳出if else语句需要修改的跳转地址位置
+            func.addInstruction(new Instruction(Operation.Br,0,4));
             while (check(TokenType.If)){
                 expect(TokenType.If);
                 nextAdd.add(func.getInstructionsLength());//回填地址

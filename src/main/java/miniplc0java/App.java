@@ -81,8 +81,8 @@ public class App {
 
         var analyzer = new Analyser(tokenizer);
         MidCode m=analyzer.analyse();
-        asm.println(MidCode.getMidCode().toString());
-        //WriteFile.writeO0File(m, outputFileName);
+        //asm.println(MidCode.getMidCode().toString());
+        WriteFile.writeO0File(m, outputFileName);
 
         /*if (result.getBoolean("tokenize")) {
             // tokenize
