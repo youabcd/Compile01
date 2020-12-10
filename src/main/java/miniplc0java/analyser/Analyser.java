@@ -560,7 +560,7 @@ public final class Analyser {
     private String AnalyseAs(FunctionList func,int depth) throws CompileError{
         String type="void";
         type=AnalyseFactor(func, depth);
-        if(check(TokenType.As)){
+        while(check(TokenType.As)){
             next();
             Token t=next();
             if(t.getValueString().equals("int")){
