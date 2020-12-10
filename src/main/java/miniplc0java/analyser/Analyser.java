@@ -581,23 +581,15 @@ public final class Analyser {
     private String AnalyseFactor(FunctionList func,int depth) throws CompileError {
         //<因子>::=Ident|Uint|(<表达式>)
         String type="void";
-        boolean negate=false;
-        /*if (nextIf(TokenType.Minus) != null) {//负数显示为0-(Uint|Ident|<***>)
-            negate = true;
-            // 计算结果需要被 0 减
-        }
-        else {//防止a=+1;此类情况
-            nextIf(TokenType.Plus);
-            negate = false;
-        }*/
+        int negate=0;
 
-        if(check(TokenType.Minus)){
+        while(check(TokenType.Minus)){
             expect(TokenType.Minus);
-            negate=true;
+            negate++;
         }
         if(check(TokenType.Plus)){
             expect(TokenType.Plus);
-            negate=false;
+            negate=0;
         }
 
         if (check(TokenType.Ident)) {
@@ -742,7 +734,7 @@ public final class Analyser {
             throw new ExpectedTokenError(List.of(TokenType.Ident), next());
         }
 
-        if (negate) {
+        if (negate%2==1) {
             if(type.equals("int")) {
                 func.addInstruction(new Instruction(Operation.NegI));
             }
