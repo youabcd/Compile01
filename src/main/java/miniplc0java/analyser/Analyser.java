@@ -202,7 +202,7 @@ public final class Analyser {
      * @throws AnalyzeError 如果重复定义了则抛异常
      */
     private void addSymbol(String name, boolean isInitialized, boolean isConstant, String type, Pos curPos,int depth,int offSet) throws AnalyzeError {
-        if (findBSymbol(name,depth) != null) {
+        if (findSymbol(name,depth)) {
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
         }
         else {
