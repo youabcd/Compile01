@@ -432,6 +432,7 @@ public final class Analyser {
                 throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
             }
             expect(TokenType.Semicolon);
+            return "void";
         }
         return type;
     }
@@ -770,6 +771,12 @@ public final class Analyser {
         }
         else if(check(TokenType.Return)){
             AnalyseReturn(func,depth);
+        }
+        else if(check(TokenType.Break)){
+            //func.addInstruction(new Instruction(Operation.Br,0,4));
+        }
+        else if(check(TokenType.Continue)){
+            //func.addInstruction(new Instruction(Operation.Br,0,4));
         }
         else if(check(TokenType.Lbrace)){//代码块
             AnalyseBlock(func,depth);
