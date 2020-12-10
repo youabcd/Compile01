@@ -521,14 +521,14 @@ public final class Analyser {
         while(check(TokenType.Mult)||check(TokenType.Div)){
             Token t=next();
             if(type.equals("int")) {
-                if (t.getTokenType()==TokenType.Mult) {
-                    String type1 = AnalyseItem(func, depth);
+                if (t.getTokenType().toString().equals(TokenType.Mult.toString())) {
+                    String type1 = AnalyseAs(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
                     func.addInstruction(new Instruction(Operation.MulI));
                 } else {
-                    String type1 = AnalyseItem(func, depth);
+                    String type1 = AnalyseAs(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
@@ -536,14 +536,14 @@ public final class Analyser {
                 }
             }
             else if(type.equals("double")) {
-                if (t.getTokenType()==TokenType.Mult) {
-                    String type1 = AnalyseItem(func, depth);
+                if (t.getTokenType().equals(TokenType.Mult)) {
+                    String type1 = AnalyseAs(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
                     func.addInstruction(new Instruction(Operation.MulF));
                 } else {
-                    String type1 = AnalyseItem(func, depth);
+                    String type1 = AnalyseAs(func, depth);
                     if(!type.equals(type1)){
                         throw new AnalyzeError(ErrorCode.NotDeclared, t.getStartPos());
                     }
@@ -718,18 +718,14 @@ public final class Analyser {
             Token b=expect(TokenType.Char);
             func.addInstruction(new Instruction(Operation.Push,(int)(b.getValue()), 8 ));
         }
-        else if(check(TokenType.Str)){
-
-        }
+        else if(check(TokenType.Str)){}
         else if (check(TokenType.LParen)) {
             // 调用相应的处理函数
             expect(TokenType.LParen);
             type=AnalyseAssign(func, depth);
             expect(TokenType.RParen);
         }
-        else if(check(TokenType.None)){
-        }
-        //TODO 0-ac3
+        else if(check(TokenType.None)){}
         else {
             throw new ExpectedTokenError(List.of(TokenType.Ident), next());
         }
@@ -912,6 +908,9 @@ public final class Analyser {
             for(int i=0;i<end.size();i++){
                 func.setBrInstructionValue(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1,4));
             }
+        }
+        else{
+            func.setBrInstructionValue(add.get(0),new Instruction(Operation.Br,func.getInstructionsLength()-add.get(0)-1,4));
         }
     }
 

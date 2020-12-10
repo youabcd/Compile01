@@ -1,31 +1,131 @@
+is_odd
+fastpow
+getint
+getint
+getint
 putint
+putln
 main
 _start
 
-fn [2] 0 0 -> 0 {
+fn [8] 0 0 -> 0 {
 0: StackAlloc(0)
-1: Call(1)
+1: Call(3)
 }
 
-fn [1] 3 0 -> 0 {
+fn [0] 0 1 -> 1 {
+0: ArgA(0)
+1: ArgA(1)
+2: Load64
+3: Push(2)
+4: DivI
+5: Push(2)
+6: MulI
+7: ArgA(1)
+8: Load64
+9: SubI
+10: Store64
+11: Ret
+}
+
+fn [1] 1 2 -> 1 {
 0: LocA(0)
 1: Push(1)
 2: Store64
-3: LocA(1)
-4: Push(2)
-5: Store64
-6: LocA(2)
-7: LocA(0)
-8: Load64
-9: LocA(1)
-10: Load64
-11: AddI
+3: ArgA(2)
+4: Load64
+5: Push(0)
+6: CmpI
+7: SetLt
+8: BrTrue(1)
+9: Br(5)
+10: ArgA(0)
+11: Push(0)
 12: Store64
-13: StackAlloc(0)
-14: LocA(2)
-15: Load64
-16: CallName(0)
-17: Ret
+13: Ret
+14: Br(0)
+15: Br(0)
+16: ArgA(2)
+17: Load64
+18: Push(0)
+19: CmpI
+20: SetGt
+21: BrTrue(1)
+22: Br(28)
+23: StackAlloc(1)
+24: ArgA(2)
+25: Load64
+26: Call(1)
+27: BrTrue(1)
+28: Br(8)
+29: LocA(0)
+30: LocA(0)
+31: Load64
+32: ArgA(1)
+33: Load64
+34: MulI
+35: Store64
+36: Br(0)
+37: ArgA(1)
+38: ArgA(1)
+39: Load64
+40: ArgA(1)
+41: Load64
+42: MulI
+43: Store64
+44: ArgA(2)
+45: ArgA(2)
+46: Load64
+47: Push(2)
+48: DivI
+49: Store64
+50: Br(-35)
+51: ArgA(0)
+52: LocA(0)
+53: Load64
+54: Store64
+55: Ret
+}
+
+fn [7] 3 0 -> 0 {
+0: LocA(2)
+1: StackAlloc(1)
+2: CallName(2)
+3: Store64
+4: Br(0)
+5: LocA(2)
+6: Load64
+7: Push(0)
+8: CmpI
+9: SetGt
+10: BrTrue(1)
+11: Br(25)
+12: LocA(0)
+13: StackAlloc(1)
+14: CallName(3)
+15: Store64
+16: LocA(1)
+17: StackAlloc(1)
+18: CallName(4)
+19: Store64
+20: StackAlloc(0)
+21: StackAlloc(1)
+22: LocA(0)
+23: Load64
+24: LocA(1)
+25: Load64
+26: Call(2)
+27: CallName(5)
+28: StackAlloc(0)
+29: CallName(6)
+30: LocA(2)
+31: LocA(2)
+32: Load64
+33: Push(1)
+34: SubI
+35: Store64
+36: Br(-32)
+37: Ret
 }
 
 
