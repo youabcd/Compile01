@@ -40,6 +40,7 @@ public class StringIter {
         }
         while (scanner.hasNext()) {
             linesBuffer.add(scanner.nextLine() + '\n');
+            System.out.println(scanner.nextLine()+'\n');
         }
         // todo:check read \n?
         initialized = true;
