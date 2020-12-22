@@ -931,15 +931,61 @@ public final class Analyser {
     private void AnalyseWhile(FunctionList func,int depth) throws CompileError{
         expect(TokenType.While);
         int begin=func.getInstructionsLength();
+        ArrayList<Integer> continueList=new ArrayList<>();
+        ArrayList<Integer> breakList=new ArrayList<>();
         func.addInstruction(new Instruction(Operation.Br,0,4));
         AnalyseAssign(func, depth);
         func.addInstruction(new Instruction(Operation.BrTrue,1,4));
         int add=func.getInstructionsLength();
         func.addInstruction(new Instruction(Operation.Br,0,4));
-        AnalyseBlock(func, depth);
+        //AnalyseBlock(func, depth);
+        depth++;
+        expect(TokenType.Lbrace);
+        while(!check(TokenType.Rbrace)){
+            if(check(TokenType.Let)){
+                AnalyseLet_decl_stmt(func,depth);
+            }
+            else if(check(TokenType.Const)){
+                AnalyseConst_decl_stmt(func, depth);
+            }
+            else if(check(TokenType.If)){
+                AnalyseIf(func,depth);
+            }
+            else if(check(TokenType.While)){
+                AnalyseWhile(func,depth);
+            }
+            else if(check(TokenType.Return)){
+                AnalyseReturn(func,depth);
+            }
+            else if(check(TokenType.Break)){
+                breakList.add(func.getInstructionsLength());
+                func.addInstruction(new Instruction(Operation.Br,0,4));
+            }
+            else if(check(TokenType.Continue)){
+                continueList.add(func.getInstructionsLength());
+                func.addInstruction(new Instruction(Operation.Br,0,4));
+            }
+            else if(check(TokenType.Lbrace)){//代码块
+                AnalyseBlock(func,depth);
+            }
+            else if(check(TokenType.Semicolon)){
+                AnalyseEmpty(func,depth);
+            }
+            else{
+                AnalyseAssign(func,depth);
+            }
+        }
+        expect(TokenType.Rbrace);
+        popRank(depth);
         func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength(),4));
         int end=func.getInstructionsLength();
         func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1,4));
+        for(int i=0;i<continueList.size();i++){
+            func.setBrInstructionValue(continueList.get(i),new Instruction(Operation.Br,continueList.get(i)-begin-1,4));
+        }
+        for(int i=0;i<breakList.size();i++){
+            func.setBrInstructionValue(breakList.get(i),new Instruction(Operation.Br,end-breakList.get(i)-1,4));
+        }
     }
 
     private void AnalyseReturn(FunctionList func,int depth) throws CompileError{
