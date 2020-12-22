@@ -43,7 +43,23 @@ public class WriteFile {
                             binaryContent.write(getByteValue(ins.getX(), ins.getY()));
                     }
                 }
-                else{
+//                else{
+//                    binaryContent.write(getByteValue(f.getFnNumber(), 4));
+//                    binaryContent.write(getByteValue(f.getReturnSlots(), 4));
+//                    binaryContent.write(getByteValue(f.getParamSlots(), 4));
+//                    binaryContent.write(getByteValue(f.getLocSlots(), 4));
+//
+//                    binaryContent.write(getByteValue(f.getFuncBodyCount(), 4));
+//
+//                    for (Instruction i : f.getFuncBody()) {
+//                        binaryContent.write(getByteValue(i.getOptValue(), 1));
+//                        if (i.hasX())
+//                            binaryContent.write(getByteValue(i.getX(), i.getY()));
+//                    }
+//                }
+            }
+            for(FunctionList f: midCode.funcList){
+                if(!f.getFuncName().equals("_start")) {
                     binaryContent.write(getByteValue(f.getFnNumber(), 4));
                     binaryContent.write(getByteValue(f.getReturnSlots(), 4));
                     binaryContent.write(getByteValue(f.getParamSlots(), 4));
@@ -58,22 +74,6 @@ public class WriteFile {
                     }
                 }
             }
-//            for(FunctionList f: midCode.fnList){
-//                if(!f.getFuncName().equals("_start")) {
-//                    binaryContent.write(getByteValue(f.getFnNumber(), 4));
-//                    binaryContent.write(getByteValue(f.getReturnSlots(), 4));
-//                    binaryContent.write(getByteValue(f.getParamSlots(), 4));
-//                    binaryContent.write(getByteValue(f.getLocSlots(), 4));
-//
-//                    binaryContent.write(getByteValue(f.getFuncBodyCount(), 4));
-//
-//                    for (Instruction i : f.getFuncBody()) {
-//                        binaryContent.write(getByteValue(i.getOptValue(), 1));
-//                        if (i.hasX())
-//                            binaryContent.write(getByteValue(i.getX(), i.getY()));
-//                    }
-//                }
-//            }
             binaryContent.close();
 
         } catch(Exception ignored){}
