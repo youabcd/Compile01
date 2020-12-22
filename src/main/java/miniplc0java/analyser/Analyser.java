@@ -391,7 +391,7 @@ public final class Analyser {
         }
 
         MidCode.getMidCode().addFunction(funcStart);
-        FunctionList mid=midCode.getFn("main",peek().getStartPos());
+        FunctionList mid=midCode.getFunc("main",peek().getStartPos());
         funcStart.addInstruction(new Instruction(Operation.StackAlloc,mid.getReturnSlots(),4));
         int start=midCode.getFnAddress("main");
         funcStart.addInstruction(new Instruction(Operation.Call,start,4));
@@ -645,7 +645,7 @@ public final class Analyser {
                     func.addInstruction(new Instruction(Operation.CallName,offset,4));
                 }
                 else {
-                    FunctionList calledFunc = midCode.getFn(a.getValueString(), a.getStartPos());
+                    FunctionList calledFunc = midCode.getFunc(a.getValueString(), a.getStartPos());
                     func.addInstruction(new Instruction(Operation.StackAlloc, calledFunc.getReturnSlots(), 4));
                     next();
                     ArrayList<String> paramType = new ArrayList<>();

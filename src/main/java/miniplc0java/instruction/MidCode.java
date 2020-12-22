@@ -10,7 +10,7 @@ public class MidCode {
     public int version = 0x00000001;
     public String startFn = "_start";
     public ArrayList<GlobalSymbol> gdList = new ArrayList<>();
-    public ArrayList<FunctionList> fnList = new ArrayList<>();
+    public ArrayList<FunctionList> funcList = new ArrayList<>();
 
 
     // 函数名和全局变量
@@ -96,7 +96,7 @@ public class MidCode {
      * @param f 函数块
      */
     public void addFunction(FunctionList f){
-        fnList.add(f);
+        funcList.add(f);
     }
 
 
@@ -107,7 +107,7 @@ public class MidCode {
      * @return 成功与否
      */
     public boolean removeFunction(String fnName){
-        return fnList.removeIf(f -> f.getFuncName().equals(fnName));
+        return funcList.removeIf(f -> f.getFuncName().equals(fnName));
     }
 
     /**
@@ -129,13 +129,13 @@ public class MidCode {
 
     /**
      * 获取函数的偏移量，从1开始
-     * @param fnName 函数名
+     * @param funcName 函数名
      * @return 偏移量
      */
-    public int getFnAddress(String fnName) {
+    public int getFnAddress(String funcName) {
         int i=1;
-        for(FunctionList f:fnList){
-            if(f.getFuncName().equals(fnName)){
+        for(FunctionList f:funcList){
+            if(f.getFuncName().equals(funcName)){
                 return i;
             }
             i++;
@@ -156,14 +156,14 @@ public class MidCode {
 
     /**
      * 获取函数
-     * @param fnName
+     * @param funcName
      * @param curPos
      * @return
      * @throws AnalyzeError
      */
-    public FunctionList getFn(String fnName, Pos curPos) throws AnalyzeError{
-        for(FunctionList f:fnList){
-            if(f.getFuncName().equals(fnName)){
+    public FunctionList getFunc(String funcName, Pos curPos) throws AnalyzeError{
+        for(FunctionList f:funcList){
+            if(f.getFuncName().equals(funcName)){
                 return f;
             }
         }
@@ -204,12 +204,12 @@ public class MidCode {
 */
 
         sb.append("\n");
-        for(FunctionList f : fnList){
+        for(FunctionList f : funcList){
             if(f.getFuncName().equals("_start")){
                 sb.append(f).append('\n');
             }
         }
-        for(FunctionList f : fnList){
+        for(FunctionList f : funcList){
             if(!f.getFuncName().equals("_start") ){
                 sb.append(f).append('\n');
             }
