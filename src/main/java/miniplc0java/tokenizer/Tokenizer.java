@@ -155,7 +155,7 @@ public class Tokenizer {
         Pos ptrstart=it.previousPos();
         StringBuffer sb=new StringBuffer("");
         it.nextChar();//读取第一个"
-        while(it.peekChar()!='"'){
+        while(it.peekChar()!='"'&&!it.isEOF()){
             if(it.peekChar()=='\\'){
                 char ch;
                 it.nextChar();
@@ -197,7 +197,7 @@ public class Tokenizer {
         StringBuffer sb=new StringBuffer("");
         it.nextChar();//读取第一个'
         int k=-1;
-        while(it.peekChar()!='\''){
+        while(it.peekChar()!='\''&&!it.isEOF()){
             if(it.peekChar()=='\\'){
                 char ch;
                 it.nextChar();
@@ -334,7 +334,7 @@ public class Tokenizer {
             case '/':
                 if(it.peekChar()=='/'){
                     it.nextChar();
-                    while(it.peekChar()!='\n'){
+                    while(it.peekChar()!='\n'&&!it.isEOF()){
                         it.nextChar();
                     }
                     it.nextChar();
