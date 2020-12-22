@@ -43,7 +43,10 @@ public class StringIter {
         }
         System.out.println(linesBuffer.toString());
         ArrayList<String> linesBuffer01 = new ArrayList<>();
-        linesBuffer01.add("fn main() -> void {return;}");
+        linesBuffer01.add("fn main() -> void {\n" +
+                "    putstr(\"Hello, world!\");\n" +
+                "    putln();\n" +
+                "}");
         linesBuffer=linesBuffer01;
         // todo:check read \n?
         initialized = true;
