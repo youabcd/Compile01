@@ -756,7 +756,7 @@ public final class Analyser {
     | block_stmt
     | empty_stmt*/
 
-    private void AnalyseStatement(FunctionList func,int depth) throws CompileError{
+    private void AnalyseStatement(FunctionList func,int depth,ArrayList<Integer> continueList,ArrayList<Integer> breakList) throws CompileError{
         if(check(TokenType.Let)){
             AnalyseLet_decl_stmt(func,depth);
         }
@@ -764,7 +764,7 @@ public final class Analyser {
             AnalyseConst_decl_stmt(func, depth);
         }
         else if(check(TokenType.If)){
-            AnalyseIf(func,depth);
+            AnalyseIf(func,depth,continueList,breakList);
         }
         else if(check(TokenType.While)){
             AnalyseWhile(func,depth);
@@ -773,16 +773,22 @@ public final class Analyser {
             AnalyseReturn(func,depth);
         }
         else if(check(TokenType.Break)){
-            //func.addInstruction(new Instruction(Operation.Br,0,4));
+            expect(TokenType.Break);
+            //breakList.add(func.getInstructionsLength());
+            func.addInstruction(new Instruction(Operation.Br,0,4));
+            expect(TokenType.Semicolon);
         }
         else if(check(TokenType.Continue)){
-            //func.addInstruction(new Instruction(Operation.Br,0,4));
+            expect(TokenType.Continue);
+            //continueList.add(func.getInstructionsLength());
+            func.addInstruction(new Instruction(Operation.Br,0,4));
+            expect(TokenType.Semicolon);
         }
         else if(check(TokenType.Lbrace)){//代码块
-            AnalyseBlock(func,depth);
+            AnalyseBlock(func,depth,continueList,breakList);
         }
         else if(check(TokenType.Semicolon)){
-            AnalyseEmpty(func,depth);
+            AnalyseEmpty();
         }
         else{
             AnalyseAssign(func,depth);
@@ -877,7 +883,7 @@ public final class Analyser {
         expect(TokenType.Semicolon);
     }
 
-    private void AnalyseIf(FunctionList func,int depth) throws CompileError{
+    private void AnalyseIf(FunctionList func,int depth,ArrayList<Integer> continueList,ArrayList<Integer> breakList) throws CompileError{
         expect(TokenType.If);
         AnalyseAssign(func, depth);
         ArrayList<Integer> add=new ArrayList<Integer>();
@@ -888,7 +894,7 @@ public final class Analyser {
         func.addInstruction(new Instruction(Operation.BrTrue,1,4));
         add.add(func.getInstructionsLength());//需要修改跳转地址的位置
         func.addInstruction(new Instruction(Operation.Br,0,4));
-        AnalyseBlock(func,depth);
+        AnalyseBlock(func,depth,continueList,breakList);
         if(check(TokenType.Else)){
             next();
             end.add(func.getInstructionsLength());//跳出if else语句需要修改的跳转地址位置
@@ -900,7 +906,7 @@ public final class Analyser {
                 func.addInstruction(new Instruction(Operation.BrTrue,1,4));
                 add.add(func.getInstructionsLength());//需要修改跳转地址的位置
                 func.addInstruction(new Instruction(Operation.Br,0,4));
-                AnalyseBlock(func, depth);
+                AnalyseBlock(func, depth,continueList,breakList);
                 end.add(func.getInstructionsLength());
                 func.addInstruction(new Instruction(Operation.Br,0,4));
                 if (!check(TokenType.Else)){
@@ -913,7 +919,7 @@ public final class Analyser {
             }
             nextAdd.add(func.getInstructionsLength());
             if(k1==0){
-                AnalyseBlock(func, depth);
+                AnalyseBlock(func, depth,continueList,breakList);
             }
             end1=func.getInstructionsLength();//结束地址
             for(int i=0;i<add.size();i++){
@@ -938,50 +944,12 @@ public final class Analyser {
         func.addInstruction(new Instruction(Operation.BrTrue,1,4));
         int add=func.getInstructionsLength();
         func.addInstruction(new Instruction(Operation.Br,0,4));
-        //AnalyseBlock(func, depth);
-        depth++;
-        expect(TokenType.Lbrace);
-        while(!check(TokenType.Rbrace)){
-            if(check(TokenType.Let)){
-                AnalyseLet_decl_stmt(func,depth);
-            }
-            else if(check(TokenType.Const)){
-                AnalyseConst_decl_stmt(func, depth);
-            }
-            else if(check(TokenType.If)){
-                AnalyseIf(func,depth);
-            }
-            else if(check(TokenType.While)){
-                AnalyseWhile(func,depth);
-            }
-            else if(check(TokenType.Return)){
-                AnalyseReturn(func,depth);
-            }
-            else if(check(TokenType.Break)){
-                breakList.add(func.getInstructionsLength());
-                func.addInstruction(new Instruction(Operation.Br,0,4));
-            }
-            else if(check(TokenType.Continue)){
-                continueList.add(func.getInstructionsLength());
-                func.addInstruction(new Instruction(Operation.Br,0,4));
-            }
-            else if(check(TokenType.Lbrace)){//代码块
-                AnalyseBlock(func,depth);
-            }
-            else if(check(TokenType.Semicolon)){
-                AnalyseEmpty(func,depth);
-            }
-            else{
-                AnalyseAssign(func,depth);
-            }
-        }
-        expect(TokenType.Rbrace);
-        popRank(depth);
+        AnalyseBlock(func, depth,continueList,breakList);
         func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength(),4));
         int end=func.getInstructionsLength();
         func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1,4));
         for(int i=0;i<continueList.size();i++){
-            func.setBrInstructionValue(continueList.get(i),new Instruction(Operation.Br,continueList.get(i)-begin-1,4));
+            func.setBrInstructionValue(continueList.get(i),new Instruction(Operation.Br,begin-continueList.get(i)+1,4));
         }
         for(int i=0;i<breakList.size();i++){
             func.setBrInstructionValue(breakList.get(i),new Instruction(Operation.Br,end-breakList.get(i)-1,4));
@@ -1003,17 +971,17 @@ public final class Analyser {
         expect(TokenType.Semicolon);
     }
 
-    private void AnalyseBlock(FunctionList func,int depth) throws CompileError{
+    private void AnalyseBlock(FunctionList func,int depth,ArrayList<Integer> continueList,ArrayList<Integer> breakList) throws CompileError{
         depth++;
         expect(TokenType.Lbrace);
         while(!check(TokenType.Rbrace)){
-            AnalyseStatement(func, depth);
+            AnalyseStatement(func, depth,continueList,breakList);
         }
         expect(TokenType.Rbrace);
         popRank(depth);
     }
 
-    private void AnalyseEmpty(FunctionList func,int depth) throws CompileError{
+    private void AnalyseEmpty() throws CompileError{
         expect(TokenType.Semicolon);
     }
 
@@ -1037,7 +1005,9 @@ public final class Analyser {
         expect(TokenType.Arrow);
         Token ty=expect(TokenType.Ty);
         func.setReturn(ty.getValueString());
-        AnalyseBlock(func,0);
+        ArrayList<Integer> continueList=new ArrayList<>();
+        ArrayList<Integer> breakList=new ArrayList<>();
+        AnalyseBlock(func,0,continueList,breakList);
         if(func.isReturned()){
             if(!func.checkReturnRoutes()){
                 throw new AnalyzeError(ErrorCode.ExpectedToken, peek().getStartPos());
