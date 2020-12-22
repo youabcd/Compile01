@@ -14,7 +14,7 @@ public class FunctionList {
         libFunc.put("putstr", "void"); libFunc.put("putln", "void");
     }
 
-    public String fnName;
+    public String funcName;
     public int returnSlots = 0;
     public String returnType;
     public boolean returned;
@@ -22,10 +22,10 @@ public class FunctionList {
     public ArrayList<FunctionParam> paramTable = new ArrayList<>();
     public int locSlots = 0;
 
-    public ArrayList<Instruction> fnBody = new ArrayList<>();
+    public ArrayList<Instruction> funcBody = new ArrayList<>();
 
     public FunctionList(String fnName){
-        this.fnName = fnName;
+        this.funcName = fnName;
     }
 
 
@@ -34,17 +34,17 @@ public class FunctionList {
      * @param i 指令
      */
     public void addInstruction(Instruction i){
-        fnBody.add(i);
+        funcBody.add(i);
     }
 
-    public void removeInstruction(int i){fnBody.remove(i);}
+    public void removeInstruction(int i){funcBody.remove(i);}
 
     /**
      * 返回当前指令长度 用于跳转
      * @return 长度
      */
     public int getInstructionsLength() {
-        return fnBody.size();
+        return funcBody.size();
     }
 
     /**
@@ -61,7 +61,7 @@ public class FunctionList {
      * @param i
      */
     public void setBrInstructionValue(int index, Instruction i){
-        fnBody.set(index,i);
+        funcBody.set(index,i);
     }
 
     /**
@@ -175,12 +175,12 @@ public class FunctionList {
     }
 
 
-    public String getFnName() {
-        return fnName;
+    public String getFuncName() {
+        return funcName;
     }
 
-    public void setFnName(String fnName) {
-        this.fnName = fnName;
+    public void setFuncName(String fnName) {
+        this.funcName = fnName;
     }
 
     public int getReturnSlots() {
@@ -207,12 +207,12 @@ public class FunctionList {
         this.locSlots = locSlots;
     }
 
-    public ArrayList<Instruction> getFnBody() {
-        return fnBody;
+    public ArrayList<Instruction> getFuncBody() {
+        return funcBody;
     }
 
-    public void setFnBody(ArrayList<Instruction> fnBody) {
-        this.fnBody = fnBody;
+    public void setFuncBody(ArrayList<Instruction> fnBody) {
+        this.funcBody = fnBody;
     }
 
     public String getReturnType() {
@@ -239,23 +239,23 @@ public class FunctionList {
         this.returned = returned;
     }
 
-    public int getFnBodyCount(){
-        return this.fnBody.size();
+    public int getFuncBodyCount(){
+        return this.funcBody.size();
     }
 
     public int getFnNumber(){
-        return MidCode.getMidCode().getFnNumber(this.fnName);
+        return MidCode.getMidCode().getFnNumber(this.funcName);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("fn [").append(MidCode.getMidCode().getFnNumber(this.fnName)).
+        sb.append("fn [").append(MidCode.getMidCode().getFnNumber(this.funcName)).
                 append("] ").append(locSlots).append(" ").append(paramSlots).append(" -> ").
                 append(returnSlots).append(" {\n");
 
         int xh=0;
-        for(Instruction i : fnBody){
+        for(Instruction i : funcBody){
             sb.append(xh+": ");
             sb.append(i).append("\n");
             xh++;
@@ -271,7 +271,7 @@ public class FunctionList {
      */
     public boolean checkReturnRoutes(){
         if(this.getReturnType().equals("void")){
-            if(!this.fnBody.get(this.fnBody.size()-1).getOpt().equals(Operation.Ret)){
+            if(!this.funcBody.get(this.funcBody.size()-1).getOpt().equals(Operation.Ret)){
                 addInstruction(new Instruction(Operation.Ret));
             }
             return true;
@@ -282,22 +282,22 @@ public class FunctionList {
     }
 
     private boolean dfs(int i, HashSet<Integer> routes){
-        if( i > fnBody.size()-1){
+        if( i > funcBody.size()-1){
             return false;
         }
         else if(routes.contains(i)){
             return true;
         }
-        else if(fnBody.get(i).getOpt().equals(Operation.BrTrue)){
+        else if(funcBody.get(i).getOpt().equals(Operation.BrTrue)){
             routes.add(i);
             boolean ret = dfs(i+1, routes);
             return ret && dfs(i+2, routes);
         }
-        else if(fnBody.get(i).getOpt().equals(Operation.Br)){
+        else if(funcBody.get(i).getOpt().equals(Operation.Br)){
             routes.add(i);
-            return dfs(i+fnBody.get(i).getIntX()+1, routes);
+            return dfs(i+funcBody.get(i).getIntX()+1, routes);
         }
-        else if(fnBody.get(i).getOpt().equals(Operation.Ret)){
+        else if(funcBody.get(i).getOpt().equals(Operation.Ret)){
             return true;
         }
         else{

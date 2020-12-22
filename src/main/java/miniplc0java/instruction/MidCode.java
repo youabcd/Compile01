@@ -107,7 +107,7 @@ public class MidCode {
      * @return 成功与否
      */
     public boolean removeFunction(String fnName){
-        return fnList.removeIf(f -> f.getFnName().equals(fnName));
+        return fnList.removeIf(f -> f.getFuncName().equals(fnName));
     }
 
     /**
@@ -135,7 +135,7 @@ public class MidCode {
     public int getFnAddress(String fnName) {
         int i=1;
         for(FunctionList f:fnList){
-            if(f.getFnName().equals(fnName)){
+            if(f.getFuncName().equals(fnName)){
                 return i;
             }
             i++;
@@ -163,7 +163,7 @@ public class MidCode {
      */
     public FunctionList getFn(String fnName, Pos curPos) throws AnalyzeError{
         for(FunctionList f:fnList){
-            if(f.getFnName().equals(fnName)){
+            if(f.getFuncName().equals(fnName)){
                 return f;
             }
         }
@@ -205,12 +205,12 @@ public class MidCode {
 
         sb.append("\n");
         for(FunctionList f : fnList){
-            if(f.getFnName().equals("_start")){
+            if(f.getFuncName().equals("_start")){
                 sb.append(f).append('\n');
             }
         }
         for(FunctionList f : fnList){
-            if(!f.getFnName().equals("_start") ){
+            if(!f.getFuncName().equals("_start") ){
                 sb.append(f).append('\n');
             }
         }

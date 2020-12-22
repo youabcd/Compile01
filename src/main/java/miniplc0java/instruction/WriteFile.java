@@ -29,15 +29,15 @@ public class WriteFile {
             content.write(getByteValue(midCode.fnList.size(), 4));
 
             for(FunctionList f: midCode.fnList){
-                if(f.getFnName().equals("_start")) {
+                if(f.getFuncName().equals("_start")) {
                     content.write(getByteValue(f.getFnNumber(), 4));
                     content.write(getByteValue(f.getReturnSlots(), 4));
                     content.write(getByteValue(f.getParamSlots(), 4));
                     content.write(getByteValue(f.getLocSlots(), 4));
 
-                    content.write(getByteValue(f.getFnBodyCount(), 4));
+                    content.write(getByteValue(f.getFuncBodyCount(), 4));
 
-                    for (Instruction i : f.getFnBody()) {
+                    for (Instruction i : f.getFuncBody()) {
                         content.write(getByteValue(i.getOptValue(), 1));
                         if (i.hasX())
                             content.write(getByteValue(i.getX(), i.getY()));
@@ -45,15 +45,15 @@ public class WriteFile {
                 }
             }
             for(FunctionList f: midCode.fnList){
-                if(!f.getFnName().equals("_start")) {
+                if(!f.getFuncName().equals("_start")) {
                     content.write(getByteValue(f.getFnNumber(), 4));
                     content.write(getByteValue(f.getReturnSlots(), 4));
                     content.write(getByteValue(f.getParamSlots(), 4));
                     content.write(getByteValue(f.getLocSlots(), 4));
 
-                    content.write(getByteValue(f.getFnBodyCount(), 4));
+                    content.write(getByteValue(f.getFuncBodyCount(), 4));
 
-                    for (Instruction i : f.getFnBody()) {
+                    for (Instruction i : f.getFuncBody()) {
                         content.write(getByteValue(i.getOptValue(), 1));
                         if (i.hasX())
                             content.write(getByteValue(i.getX(), i.getY()));

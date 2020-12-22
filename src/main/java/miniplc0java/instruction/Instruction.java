@@ -26,38 +26,38 @@ public class Instruction {
         this.y=y;
     }
 
-    public static HashMap<String, Number> INSTRUCT = new HashMap<>();
+    public static HashMap<String, Number> OPERATE = new HashMap<>();
     static{
-        INSTRUCT.put("Nop", 0x00);INSTRUCT.put("Push", 0x01);
-        INSTRUCT.put("Pop", 0x02);INSTRUCT.put("Popn", 0x03);
-        INSTRUCT.put("Dup", 0x04);INSTRUCT.put("LocA", 0x0a);
-        INSTRUCT.put("ArgA", 0x0b);INSTRUCT.put("GlobA", 0x0c);
-        INSTRUCT.put("Load8", 0x10);INSTRUCT.put("Load16", 0x11);
-        INSTRUCT.put("Load32", 0x12);INSTRUCT.put("Load64", 0x13);
-        INSTRUCT.put("Store8", 0x14);INSTRUCT.put("Store16", 0x15);
-        INSTRUCT.put("Store32", 0x16);INSTRUCT.put("Store64", 0x17);
-        INSTRUCT.put("Alloc", 0x18);INSTRUCT.put("Free", 0x19);
-        INSTRUCT.put("StackAlloc", 0x1a);INSTRUCT.put("AddI", 0x20);
-        INSTRUCT.put("SubI", 0x21);INSTRUCT.put("MulI", 0x22);
-        INSTRUCT.put("DivI", 0x23);INSTRUCT.put("AddF", 0x24);
-        INSTRUCT.put("SubF", 0x25);INSTRUCT.put("MulF", 0x26);
-        INSTRUCT.put("DivF", 0x27);INSTRUCT.put("DivU", 0x28);
-        INSTRUCT.put("Shl", 0x29);INSTRUCT.put("Shr", 0x2a);
-        INSTRUCT.put("And", 0x2b);INSTRUCT.put("Or", 0x2c);
-        INSTRUCT.put("Xor", 0x2d);INSTRUCT.put("Not", 0x2e);
-        INSTRUCT.put("CmpI", 0x30);
-        INSTRUCT.put("CmpF", 0x32);INSTRUCT.put("CmpU", 0x31);
-        INSTRUCT.put("NegI", 0x34);INSTRUCT.put("NegF", 0x35);
-        INSTRUCT.put("ItoF", 0x36);INSTRUCT.put("FtoI", 0x37);
-        INSTRUCT.put("Shrl", 0x38);INSTRUCT.put("SetLt", 0x39);
-        INSTRUCT.put("SetGt", 0x3a);INSTRUCT.put("Br", 0x41);
-        INSTRUCT.put("BrFalse", 0x42);INSTRUCT.put("BrTrue", 0x43);
-        INSTRUCT.put("Call", 0x48);INSTRUCT.put("Ret", 0x49);
-        INSTRUCT.put("CallName", 0x4a);INSTRUCT.put("ScanI", 0x50);
-        INSTRUCT.put("ScanC", 0x51);INSTRUCT.put("ScanF", 0x52);
-        INSTRUCT.put("PrintI", 0x54);INSTRUCT.put("PrintC", 0x55);
-        INSTRUCT.put("PrintF", 0x56);INSTRUCT.put("PrintS", 0x57);
-        INSTRUCT.put("PrintLN", 0x58);INSTRUCT.put("Panic", 0xfe);
+        OPERATE.put("Nop", 0x00);OPERATE.put("Push", 0x01);
+        OPERATE.put("Pop", 0x02);OPERATE.put("Popn", 0x03);
+        OPERATE.put("Dup", 0x04);OPERATE.put("LocA", 0x0a);
+        OPERATE.put("ArgA", 0x0b);OPERATE.put("GlobA", 0x0c);
+        OPERATE.put("Load8", 0x10);OPERATE.put("Load16", 0x11);
+        OPERATE.put("Load32", 0x12);OPERATE.put("Load64", 0x13);
+        OPERATE.put("Store8", 0x14);OPERATE.put("Store16", 0x15);
+        OPERATE.put("Store32", 0x16);OPERATE.put("Store64", 0x17);
+        OPERATE.put("Alloc", 0x18);OPERATE.put("Free", 0x19);
+        OPERATE.put("StackAlloc", 0x1a);OPERATE.put("AddI", 0x20);
+        OPERATE.put("SubI", 0x21);OPERATE.put("MulI", 0x22);
+        OPERATE.put("DivI", 0x23);OPERATE.put("AddF", 0x24);
+        OPERATE.put("SubF", 0x25);OPERATE.put("MulF", 0x26);
+        OPERATE.put("DivF", 0x27);OPERATE.put("DivU", 0x28);
+        OPERATE.put("Shl", 0x29);OPERATE.put("Shr", 0x2a);
+        OPERATE.put("And", 0x2b);OPERATE.put("Or", 0x2c);
+        OPERATE.put("Xor", 0x2d);OPERATE.put("Not", 0x2e);
+        OPERATE.put("CmpI", 0x30);
+        OPERATE.put("CmpF", 0x32);OPERATE.put("CmpU", 0x31);
+        OPERATE.put("NegI", 0x34);OPERATE.put("NegF", 0x35);
+        OPERATE.put("ItoF", 0x36);OPERATE.put("FtoI", 0x37);
+        OPERATE.put("Shrl", 0x38);OPERATE.put("SetLt", 0x39);
+        OPERATE.put("SetGt", 0x3a);OPERATE.put("Br", 0x41);
+        OPERATE.put("BrFalse", 0x42);OPERATE.put("BrTrue", 0x43);
+        OPERATE.put("Call", 0x48);OPERATE.put("Ret", 0x49);
+        OPERATE.put("CallName", 0x4a);OPERATE.put("ScanI", 0x50);
+        OPERATE.put("ScanC", 0x51);OPERATE.put("ScanF", 0x52);
+        OPERATE.put("PrintI", 0x54);OPERATE.put("PrintC", 0x55);
+        OPERATE.put("PrintF", 0x56);OPERATE.put("PrintS", 0x57);
+        OPERATE.put("PrintLN", 0x58);OPERATE.put("Panic", 0xfe);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class Instruction {
     }
 
     public int getOptValue(){
-        return INSTRUCT.get(String.valueOf(this.opt)).intValue();
+        return OPERATE.get(String.valueOf(this.opt)).intValue();
     }
 
     public int getIntX(){
@@ -120,7 +120,7 @@ public class Instruction {
             case ArgA:
             case CallName:
                 return true;
-            case Pop:
+            /*case Pop:
             case Not:
             case Ret:
             case AddF:
@@ -149,7 +149,7 @@ public class Instruction {
             case PrintLN:
             case ScanI:
             case Load64:
-            case Panic:
+            case Panic:*/
             default:
                 return false;
         }

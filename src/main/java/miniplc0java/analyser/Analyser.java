@@ -600,7 +600,7 @@ public final class Analyser {
             if(check(TokenType.LParen)){
                 if(FunctionList.libFunc.get(a.getValueString())!=null){
                     next();
-                    int offset=midCode.insertLibFunctionBefore(func.getFnName(),a.getValueString());
+                    int offset=midCode.insertLibFunctionBefore(func.getFuncName(),a.getValueString());
                     switch (a.getValueString()){
                         case "getdouble":
                             type="double";
@@ -672,7 +672,7 @@ public final class Analyser {
                     }
                     //TODO 0-ac11 ac3-1 ac4-1 ac4 ac6 ac9
                     calledFunc.checkParams(a.getStartPos(), paramType);
-                    func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFnName()) ,4));
+                    func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFuncName()) ,4));
                     type = calledFunc.getReturnType();
                 }
             }
@@ -772,12 +772,12 @@ public final class Analyser {
         else if(check(TokenType.Return)){
             AnalyseReturn(func,depth);
         }
-        else if(check(TokenType.Break)){
+        /*else if(check(TokenType.Break)){
             //func.addInstruction(new Instruction(Operation.Br,0,4));
         }
         else if(check(TokenType.Continue)){
             //func.addInstruction(new Instruction(Operation.Br,0,4));
-        }
+        }*/
         else if(check(TokenType.Lbrace)){//代码块
             AnalyseBlock(func,depth);
         }
