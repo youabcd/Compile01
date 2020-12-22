@@ -774,13 +774,13 @@ public final class Analyser {
         }
         else if(check(TokenType.Break)){
             expect(TokenType.Break);
-            //breakList.add(func.getInstructionsLength());
+            breakList.add(func.getInstructionsLength());
             func.addInstruction(new Instruction(Operation.Br,0,4));
             expect(TokenType.Semicolon);
         }
         else if(check(TokenType.Continue)){
             expect(TokenType.Continue);
-            //continueList.add(func.getInstructionsLength());
+            continueList.add(func.getInstructionsLength());
             func.addInstruction(new Instruction(Operation.Br,0,4));
             expect(TokenType.Semicolon);
         }
