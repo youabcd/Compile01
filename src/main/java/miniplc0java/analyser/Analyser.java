@@ -794,6 +794,9 @@ public final class Analyser {
         Token k=expect(TokenType.Ident);
         expect(TokenType.Colon);
         Token t=expect(TokenType.Ty);
+        if(t.getValueString().equals("void")){
+            throw new AnalyzeError(ErrorCode.NotDeclared,k.getStartPos());
+        }
         String type="";
         int offset;
         if(depth==0){

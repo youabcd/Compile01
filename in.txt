@@ -1,19 +1,7 @@
-fn is_odd(x: int) -> int {
-    return (x / 2 * 2) - x;
-}
+fn my_void_fn() -> void {
+     putint(1);
+ }
 
-fn fastpow(base: int, exp: int) -> int {
-    let res: int = 1;
-    if exp < 0 {
-        return 0;
-    }
-    return res;
-}
-
-fn main() -> void {
-    let base: int;
-    let exp: int;
-    let count: int;
-    count = getint();
-    count = count * 4 + 1;
-}
+ fn main() -> void {
+     let i: void;
+ }
