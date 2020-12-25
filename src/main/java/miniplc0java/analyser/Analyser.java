@@ -949,7 +949,7 @@ public final class Analyser {
         int end=func.getInstructionsLength();
         func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1,4));
         for(int i=0;i<continueList.size();i++){
-            func.setBrInstructionValue(continueList.get(i),new Instruction(Operation.Br,begin-continueList.get(i)+1,4));
+            func.setBrInstructionValue(continueList.get(i),new Instruction(Operation.Br,begin-continueList.get(i),4));
         }
         for(int i=0;i<breakList.size();i++){
             func.setBrInstructionValue(breakList.get(i),new Instruction(Operation.Br,end-breakList.get(i)-1,4));

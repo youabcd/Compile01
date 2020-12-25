@@ -33,13 +33,13 @@ miniplc0java/analyser/SymbolEntry.java
  miniplc0java.analyser.SymbolEntry
 miniplc0java/instruction/GlobalSymbol.java
  miniplc0java.instruction.GlobalSymbol
-miniplc0java/tokenizer/Tokenizer.java
- miniplc0java.tokenizer.Tokenizer
 miniplc0java/instruction/WriteFile.java
  miniplc0java.instruction.WriteFile
-miniplc0java/tokenizer/StringIter.java
- miniplc0java.tokenizer.StringIter
+miniplc0java/tokenizer/Tokenizer.java
+ miniplc0java.tokenizer.Tokenizer
 miniplc0java/analyser/Analyser.java
  miniplc0java.analyser.Analyser
 miniplc0java/App.java
  miniplc0java.App
+miniplc0java/tokenizer/StringIter.java
+ miniplc0java.tokenizer.StringIter
