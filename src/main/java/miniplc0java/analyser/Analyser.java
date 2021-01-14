@@ -392,9 +392,9 @@ public final class Analyser {
 
         MidCode.getMidCode().addFunction(funcStart);
         FunctionList mid=midCode.getFunc("main",peek().getStartPos());
-        funcStart.addInstruction(new Instruction(Operation.StackAlloc,mid.getReturnSlots(),4));
+        funcStart.addInstruction(new Instruction(Operation.StackAlloc,mid.getReturnSlots()));
         int start=midCode.getFnAddress("main");
-        funcStart.addInstruction(new Instruction(Operation.Call,start,4));
+        funcStart.addInstruction(new Instruction(Operation.Call,start));
         midCode.addGlobalSymbol("_start",peek().getStartPos());
 
         // 'end'
@@ -604,32 +604,32 @@ public final class Analyser {
                     switch (a.getValueString()){
                         case "getdouble":
                             type="double";
-                            func.addInstruction(new Instruction(Operation.StackAlloc, 1, 4));
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 1));
                             break;
                         case "getint":
                         case "getchar":
                             type="int";
-                            func.addInstruction(new Instruction(Operation.StackAlloc, 1, 4));
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 1));
                             break;
                         case "putstr":
-                            func.addInstruction(new Instruction(Operation.StackAlloc, 0, 4));
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 0));
                             if (check(TokenType.RParen)) {
                                 throw new AnalyzeError(ErrorCode.ExpectedToken, a.getStartPos());
                             }
                             Token t=expect(TokenType.Str);
                             midCode.addGlobalSymbolToLastPos(t.getValueString(), t.getStartPos());
                             offset=midCode.getSymbolAddress(t.getValueString());
-                            func.addInstruction(new Instruction(Operation.Push, offset, 8));
+                            func.addInstruction(new Instruction(Operation.Push, offset));
                             offset=midCode.getSymbolAddress("putstr");
                             break;
                         case "putln":
-                            func.addInstruction(new Instruction(Operation.StackAlloc, 0, 4));
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 0));
                             break;
                         default:
                             if (check(TokenType.RParen)) {
                                 throw new AnalyzeError(ErrorCode.ExpectedToken, a.getStartPos());
                             }
-                            func.addInstruction(new Instruction(Operation.StackAlloc, 0, 4));
+                            func.addInstruction(new Instruction(Operation.StackAlloc, 0));
                             if (a.getValueString().equals("putint") || a.getValueString().equals("putchar")) {
                                 if (!AnalyseAssign(func, depth).equals("int")) {
                                     throw new AnalyzeError(ErrorCode.ExpectedToken, a.getStartPos());
@@ -642,11 +642,11 @@ public final class Analyser {
                             break;
                     }
                     expect(TokenType.RParen);
-                    func.addInstruction(new Instruction(Operation.CallName,offset,4));
+                    func.addInstruction(new Instruction(Operation.CallName,offset));
                 }
                 else {
                     FunctionList calledFunc = midCode.getFunc(a.getValueString(), a.getStartPos());
-                    func.addInstruction(new Instruction(Operation.StackAlloc, calledFunc.getReturnSlots(), 4));
+                    func.addInstruction(new Instruction(Operation.StackAlloc, calledFunc.getReturnSlots()));
                     next();
                     ArrayList<String> paramType = new ArrayList<>();
                     /*while(!check(TokenType.RParen)){
@@ -672,7 +672,7 @@ public final class Analyser {
                     }
                     //TODO 0-ac11 ac3-1 ac4-1 ac4 ac6 ac9
                     calledFunc.checkParams(a.getStartPos(), paramType);
-                    func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFuncName()) ,4));
+                    func.addInstruction(new Instruction(Operation.Call, midCode.getFnAddress(calledFunc.getFuncName())));
                     type = calledFunc.getReturnType();
                 }
             }
@@ -683,7 +683,7 @@ public final class Analyser {
                 if ((sy=findBSymbol(a.getValueString(), depth))!=null) {
                     offset=sy.getStackOffset();
                     type=sy.Type();
-                    func.addInstruction(new Instruction(Operation.LocA, offset, 4));
+                    func.addInstruction(new Instruction(Operation.LocA, offset));
                 }
                 // 查找函数参数表
                 else if ((offset=func.getParamOffset(a.getValueString())) >= 0) {
@@ -691,14 +691,14 @@ public final class Analyser {
                     if(func.haveRet()){
                         offset++;
                     }
-                    func.addInstruction(new Instruction(Operation.ArgA, offset, 4));
+                    func.addInstruction(new Instruction(Operation.ArgA, offset));
                 }
                 // 查找变量表
                 else {
                     sy = useSymbol(a.getValueString(), 0, a.getStartPos());
                     type=sy.Type();
                     offset=sy.getStackOffset();
-                    func.addInstruction(new Instruction(Operation.GlobA, offset, 4));
+                    func.addInstruction(new Instruction(Operation.GlobA, offset));
                 }
                 func.addInstruction(new Instruction(Operation.Load64));
             }
@@ -707,18 +707,18 @@ public final class Analyser {
             // 调用相应的处理函数
             var b=expect(TokenType.Uint);
             type="int";
-            func.addInstruction(new Instruction(Operation.Push,Long.parseLong(b.getValueString()),8));
+            func.addInstruction(new Instruction(Operation.Push,Long.parseLong(b.getValueString())));
         }
         else if(check(TokenType.Double)){
             var b=expect(TokenType.Double);
             double x=Double.parseDouble(b.getValue().toString());
             type="double";
-            func.addInstruction(new Instruction(Operation.Push,Double.doubleToLongBits(x),8));
+            func.addInstruction(new Instruction(Operation.Push,Double.doubleToLongBits(x)));
         }
         else if(check(TokenType.Char)){//TODO 2-ac1 ac2
             Token b=expect(TokenType.Char);
             type="int";
-            func.addInstruction(new Instruction(Operation.Push,(int)(b.getValue()), 8 ));
+            func.addInstruction(new Instruction(Operation.Push,(int)(b.getValue())));
         }
         else if(check(TokenType.Str)){}
         else if (check(TokenType.LParen)) {
@@ -775,13 +775,13 @@ public final class Analyser {
         else if(check(TokenType.Break)){
             expect(TokenType.Break);
             breakList.add(func.getInstructionsLength());
-            func.addInstruction(new Instruction(Operation.Br,0,4));
+            func.addInstruction(new Instruction(Operation.Br,0));
             expect(TokenType.Semicolon);
         }
         else if(check(TokenType.Continue)){
             expect(TokenType.Continue);
             continueList.add(func.getInstructionsLength());
-            func.addInstruction(new Instruction(Operation.Br,0,4));
+            func.addInstruction(new Instruction(Operation.Br,0));
             expect(TokenType.Semicolon);
         }
         else if(check(TokenType.Lbrace)){//代码块
@@ -822,11 +822,11 @@ public final class Analyser {
             next();
             if(depth==0){
                 offset=MidCode.getMidCode().getNextGlobalVarOffset();
-                func.addInstruction(new Instruction(Operation.GlobA,offset-1,4));
+                func.addInstruction(new Instruction(Operation.GlobA,offset-1));
             }
             else{
                 offset=func.getNextLocOffset();
-                func.addInstruction(new Instruction(Operation.LocA,offset,4));
+                func.addInstruction(new Instruction(Operation.LocA,offset));
             }
             type=AnalyseAssign(func,depth);
             if(type.equals(t.getValueString())) {//TODO 3-ac2
@@ -866,11 +866,11 @@ public final class Analyser {
         addSymbol(k.getValueString(),true,true,t.getValueString(),k.getStartPos(),depth,offset);
         if(depth==0){
             offset=MidCode.getMidCode().getNextGlobalVarOffset();
-            func.addInstruction(new Instruction(Operation.GlobA,offset-1,4));
+            func.addInstruction(new Instruction(Operation.GlobA,offset-1));
         }
         else{
             offset=func.getNextLocOffset();
-            func.addInstruction(new Instruction(Operation.LocA,offset,4));
+            func.addInstruction(new Instruction(Operation.LocA,offset));
         }
         type=AnalyseAssign(func,depth);
         if(type.equals(t.getValueString())) {
@@ -891,24 +891,24 @@ public final class Analyser {
         ArrayList<Integer> end=new ArrayList<Integer>();
         int end1;
         int k1=0;
-        func.addInstruction(new Instruction(Operation.BrTrue,1,4));
+        func.addInstruction(new Instruction(Operation.BrTrue,1));
         add.add(func.getInstructionsLength());//需要修改跳转地址的位置
-        func.addInstruction(new Instruction(Operation.Br,0,4));
+        func.addInstruction(new Instruction(Operation.Br,0));
         AnalyseBlock(func,depth,continueList,breakList);
         if(check(TokenType.Else)){
             next();
             end.add(func.getInstructionsLength());//跳出if else语句需要修改的跳转地址位置
-            func.addInstruction(new Instruction(Operation.Br,0,4));
+            func.addInstruction(new Instruction(Operation.Br,0));
             while (check(TokenType.If)){
                 expect(TokenType.If);
                 nextAdd.add(func.getInstructionsLength());//回填地址
                 AnalyseAssign(func, depth);
-                func.addInstruction(new Instruction(Operation.BrTrue,1,4));
+                func.addInstruction(new Instruction(Operation.BrTrue,1));
                 add.add(func.getInstructionsLength());//需要修改跳转地址的位置
-                func.addInstruction(new Instruction(Operation.Br,0,4));
+                func.addInstruction(new Instruction(Operation.Br,0));
                 AnalyseBlock(func, depth,continueList,breakList);
                 end.add(func.getInstructionsLength());
-                func.addInstruction(new Instruction(Operation.Br,0,4));
+                func.addInstruction(new Instruction(Operation.Br,0));
                 if (!check(TokenType.Else)){
                     k1=1;
                     break;
@@ -923,14 +923,14 @@ public final class Analyser {
             }
             end1=func.getInstructionsLength();//结束地址
             for(int i=0;i<add.size();i++){
-                func.setBrInstructionValue(add.get(i),new Instruction(Operation.Br,nextAdd.get(i)-add.get(i)-1,4));
+                func.setBrInstructionValue(add.get(i),new Instruction(Operation.Br,nextAdd.get(i)-add.get(i)-1));
             }
             for(int i=0;i<end.size();i++){
-                func.setBrInstructionValue(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1,4));
+                func.setBrInstructionValue(end.get(i),new Instruction(Operation.Br,end1-end.get(i)-1));
             }
         }
         else{
-            func.setBrInstructionValue(add.get(0),new Instruction(Operation.Br,func.getInstructionsLength()-add.get(0)-1,4));
+            func.setBrInstructionValue(add.get(0),new Instruction(Operation.Br,func.getInstructionsLength()-add.get(0)-1));
         }
     }
 
@@ -939,27 +939,27 @@ public final class Analyser {
         int begin=func.getInstructionsLength();
         ArrayList<Integer> continueList=new ArrayList<>();
         ArrayList<Integer> breakList=new ArrayList<>();
-        func.addInstruction(new Instruction(Operation.Br,0,4));
+        func.addInstruction(new Instruction(Operation.Br,0));
         AnalyseAssign(func, depth);
-        func.addInstruction(new Instruction(Operation.BrTrue,1,4));
+        func.addInstruction(new Instruction(Operation.BrTrue,1));
         int add=func.getInstructionsLength();
-        func.addInstruction(new Instruction(Operation.Br,0,4));
+        func.addInstruction(new Instruction(Operation.Br,0));
         AnalyseBlock(func, depth,continueList,breakList);
-        func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength(),4));
+        func.addInstruction(new Instruction(Operation.Br,begin-func.getInstructionsLength()));
         int end=func.getInstructionsLength();
-        func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1,4));
+        func.setBrInstructionValue(add,new Instruction(Operation.Br,end-add-1));
         for(int i=0;i<continueList.size();i++){
-            func.setBrInstructionValue(continueList.get(i),new Instruction(Operation.Br,begin-continueList.get(i),4));
+            func.setBrInstructionValue(continueList.get(i),new Instruction(Operation.Br,begin-continueList.get(i)));
         }
         for(int i=0;i<breakList.size();i++){
-            func.setBrInstructionValue(breakList.get(i),new Instruction(Operation.Br,end-breakList.get(i)-1,4));
+            func.setBrInstructionValue(breakList.get(i),new Instruction(Operation.Br,end-breakList.get(i)-1));
         }
     }
 
     private void AnalyseReturn(FunctionList func,int depth) throws CompileError{
         expect(TokenType.Return);
         if(!func.getReturnType().equals("void")){
-            func.addInstruction(new Instruction(Operation.ArgA,0,4));
+            func.addInstruction(new Instruction(Operation.ArgA,0));
         }
         String type="void";
         if(!check(TokenType.Semicolon)){

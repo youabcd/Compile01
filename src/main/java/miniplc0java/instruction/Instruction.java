@@ -17,13 +17,12 @@ public class Instruction {
     public Instruction(Operation opt, long x) {
         this.opt = opt;
         this.x = x;
-        this.y=0;
-    }
-
-    public Instruction(Operation opt, long x,int y) {
-        this.opt = opt;
-        this.x = x;
-        this.y=y;
+        if(opt.equals("Push")){
+            this.y=8;
+        }
+        else{
+            this.y=4;
+        }
     }
 
 
