@@ -2,119 +2,77 @@ package miniplc0java.instruction;
 import miniplc0java.error.AnalyzeError;
 import miniplc0java.error.ErrorCode;
 import miniplc0java.util.Pos;
-
 import java.util.ArrayList;
 
 public class MidCode {
-    public int magic = 0x72303b3e;
-    public int version = 0x00000001;
-    public String startFn = "_start";
-    public ArrayList<GlobalSymbol> gdList = new ArrayList<>();
-    public ArrayList<FunctionList> funcList = new ArrayList<>();
+    public int magic=0x72303b3e;
+    public int version=0x00000001;
+    public String startFunc="_start";
+    private int globalVarNum=0;
+    public ArrayList<GlobalSymbol> globaList=new ArrayList<>();
+    public ArrayList<FunctionList> funcList=new ArrayList<>();
+    public ArrayList<String> globalSymbol=new ArrayList<>();
 
-
-    // 函数名和全局变量
-    public ArrayList<String> globalSymbol = new ArrayList<>();
-
-    public int getGlobalCounts(){
-        return this.globalSymbol.size();
-    }
-
-    public int getGlobalVarNum(){
-        return this.gdList.size();
-    }
-
-    private int globalVarNum = 0;
-
-    private static MidCode midCode = new MidCode();
+    private static MidCode midCode=new MidCode();
 
     public static MidCode getMidCode(){
         return midCode;
     }
 
-    public int getNextGlobalVarOffset(){
-        return gdList.size();
-    }
-
-    /**
-     * 添加一个全局变量到表中
-     * @param g
-     */
-    public void addGlobalVar(GlobalSymbol g){
-        gdList.add(g);
-    }
-    public boolean inGlobalVarList(String name){
-        for(GlobalSymbol g: gdList){
-            if(g.getVarName().equals(name)){
-                return true;
+    public FunctionList getFunc(String funcName,Pos curPos) throws AnalyzeError{
+        for(FunctionList f:funcList){
+            if(f.getFuncName().equals(funcName)){
+                return f;
             }
         }
-        return false;
+        throw new AnalyzeError(ErrorCode.ExpectedToken,curPos);
+    }
+    public int getGlobalCounts(){
+        return this.globalSymbol.size();
+    }
+    public int getGlobalVarNum(){
+        return this.globaList.size();
+    }
+    public int getNextGlobalVarOffset(){
+        return globaList.size();
     }
 
-    /**
-     * 变量不在全局符号表中
-     * @param name 变量名
-     * @param curPos 位置
-     * @throws AnalyzeError 变量重复
-     */
+    public void addGlobalVar(GlobalSymbol g){
+        globaList.add(g);
+    }
+
+    /*获取全局符号表中某个符号的位置，不存在则返回-1*/
+    public int getSymbolAddress(String name){
+        return globalSymbol.indexOf(name);
+    }
+
     public void notInGlobalSymbol(String name, Pos curPos) throws AnalyzeError {
-        if(globalSymbol.indexOf(name) >= 0){
-            throw new AnalyzeError(ErrorCode.DuplicateDeclaration, curPos);
+        if(globalSymbol.indexOf(name)>=0){
+            throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
         }
     }
 
-    /**
-     * 添加一个符号到全局符号表，非全局变量
-     * @param name 变量名
-     * @param curPos 位置
-     * @throws AnalyzeError 变量重复
-     */
     public void addGlobalSymbol(String name, Pos curPos) throws AnalyzeError{
         notInGlobalSymbol(name, curPos);
         globalSymbol.add(name);
     }
 
-    /**
-     * 向全局符号表的倒数第二个位置插入一条符号
-     * @param name
-     * @param curPos
-     * @throws AnalyzeError
-     */
     public void addGlobalSymbolToLastPos(String name, Pos curPos) throws AnalyzeError{
         notInGlobalSymbol(name, curPos);
         globalSymbol.add(globalSymbol.size()-2, name);
     }
-    // 添加一个全局变量进去
+    /*添加一个全局变量进去*/
     public void addGlobalVar(String name, Pos curPos) throws AnalyzeError{
         notInGlobalSymbol(name, curPos);
         globalSymbol.add(globalVarNum++, name);
     }
 
-    /**
-     * 添加一个函数块
-     * @param f 函数块
-     */
+    /* 添加一个函数块*/
     public void addFunction(FunctionList f){
         funcList.add(f);
     }
 
-
-
-    /**
-     * 从函数列表中去掉某个函数
-     * @param fnName 函数名
-     * @return 成功与否
-     */
-    public boolean removeFunction(String fnName){
-        return funcList.removeIf(f -> f.getFuncName().equals(fnName));
-    }
-
-    /**
-     * 在全局符号表中插入一条库函数的记录，不会插入到fn列表中
-     * @param fnName 函数
-     * @return 插入的偏移量，callname 返回值即可
-     */
+    /*在全局符号表中插入一条库函数的记录，不会插入到fn列表中*/
     public int insertLibFunctionBefore(String fnName, String libFn){
         int i=0;
         for(String f: globalSymbol){
@@ -127,11 +85,7 @@ public class MidCode {
         return i;
     }
 
-    /**
-     * 获取函数的偏移量，从1开始
-     * @param funcName 函数名
-     * @return 偏移量
-     */
+    /*获取函数的偏移量，从1开始*/
     public int getFnAddress(String funcName) {
         int i=1;
         for(FunctionList f:funcList){
@@ -145,7 +99,7 @@ public class MidCode {
 
     public int getFuncNumber(String fnName) {
         int i=0;
-        for(String s: globalSymbol){
+        for(String s:globalSymbol){
             if(s.equals(fnName)){
                 return i;
             }
@@ -154,56 +108,26 @@ public class MidCode {
         return -1;
     }
 
-    /**
-     * 获取函数
-     * @param funcName
-     * @param curPos
-     * @return
-     * @throws AnalyzeError
-     */
-    public FunctionList getFunc(String funcName, Pos curPos) throws AnalyzeError{
-        for(FunctionList f:funcList){
-            if(f.getFuncName().equals(funcName)){
-                return f;
-            }
-        }
-        throw new AnalyzeError(ErrorCode.ExpectedToken, curPos);
-    }
-
-    /**
-     * 获取全局符号表中某个符号的位置，不存在则返回-1
-     * @param name 符号
-     * @return 位置
-     */
-    public int getSymbolAddress(String name){
-        return globalSymbol.indexOf(name);
-    }
-
     @Override
     public String toString(){
-        StringBuilder sb = new StringBuilder();
-
-        for(GlobalSymbol g:gdList){
+        StringBuilder sb=new StringBuilder();
+        for(GlobalSymbol g:globaList){
             sb.append(g.getVarName()).append('\n');
         }
-
-        for(int i=this.getGlobalVarNum(); i<this.globalSymbol.size(); i++){
+        for(int i=this.getGlobalVarNum();i<this.globalSymbol.size();i++){
             sb.append(this.globalSymbol.get(i)).append('\n');
         }
-
         sb.append("\n");
-        for(FunctionList f : funcList){
-            if(f.getFuncName().equals("_start")){
+        for(FunctionList f:funcList){
+            if(f.getFuncName().equals(startFunc)){
                 sb.append(f).append('\n');
             }
         }
-        for(FunctionList f : funcList){
-            if(!f.getFuncName().equals("_start") ){
+        for(FunctionList f:funcList){
+            if(!f.getFuncName().equals(startFunc)){
                 sb.append(f).append('\n');
             }
         }
-
         return sb.toString();
     }
-
 }

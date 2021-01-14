@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 public class FunctionList {
-    public static HashMap<String, String> libFunc = new HashMap<>();
+    public static HashMap<String, String> libFunc=new HashMap<>();
     static {
         libFunc.put("getint","int"); libFunc.put("getdouble","double"); libFunc.put("putdouble","void");
         libFunc.put("getchar","int"); libFunc.put("putint","void"); libFunc.put("putchar","void");
@@ -22,8 +22,8 @@ public class FunctionList {
     public ArrayList<FunctionParam> paramTable = new ArrayList<>();
     public int locSlots=0;
     public ArrayList<Instruction> funcBody = new ArrayList<>();
-    public FunctionList(String fnName){
-        this.funcName = fnName;
+    public FunctionList(String funcName){
+        this.funcName=funcName;
     }
 
     public String getFuncName() {
@@ -57,28 +57,28 @@ public class FunctionList {
         return MidCode.getMidCode().getFuncNumber(this.funcName);
     }
     public void setFuncName(String funcName) {
-        this.funcName = funcName;
+        this.funcName=funcName;
     }
     public void setReturnSlots(int returnSlots) {
-        this.returnSlots = returnSlots;
+        this.returnSlots=returnSlots;
     }
     public void setParamSlots(int paramSlots) {
-        this.paramSlots = paramSlots;
+        this.paramSlots=paramSlots;
     }
     public void setLocSlots(int locSlots) {
-        this.locSlots = locSlots;
+        this.locSlots=locSlots;
     }
     public void setFuncBody(ArrayList<Instruction> funcBody) {
-        this.funcBody = funcBody;
+        this.funcBody=funcBody;
     }
     public void setReturnType(String returnType) {
-        this.returnType = returnType;
+        this.returnType=returnType;
     }
     public void setParamTable(ArrayList<FunctionParam> paramTable) {
-        this.paramTable = paramTable;
+        this.paramTable=paramTable;
     }
     public void setReturned(boolean returned) {
-        this.returned = returned;
+        this.returned=returned;
     }
 
     public void addInstruction(Instruction i){
@@ -109,7 +109,7 @@ public class FunctionList {
     }
 
     public int getNextLocOffset(){
-        return this.locSlots - 1;
+        return this.locSlots-1;
     }
 
     public void setReturn(String ty){
@@ -134,7 +134,7 @@ public class FunctionList {
     }
 
     public boolean haveRet(){
-        return this.returnSlots > 0;
+        return this.returnSlots>0;
     }
 
     public void notInFnParams(String name, Pos curPos) throws AnalyzeError{

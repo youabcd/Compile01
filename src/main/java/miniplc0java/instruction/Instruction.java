@@ -45,15 +45,9 @@ public class Instruction {
     public Operation getOpt() {
         return opt;
     }
-    /*public int getOptValue(){
-        return OPERATE.get(String.valueOf(this.opt)).intValue();
-    }*/
     public long getX() {
         return x;
     }
-    /*public int getIntX(){
-        return (int)x;
-    }*/
     public int getY() {
         return y;
     }
