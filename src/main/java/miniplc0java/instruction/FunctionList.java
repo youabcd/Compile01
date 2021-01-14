@@ -9,69 +9,92 @@ import java.util.HashSet;
 public class FunctionList {
     public static HashMap<String, String> libFunc = new HashMap<>();
     static {
-        libFunc.put("getint", "int"); libFunc.put("getdouble","double"); libFunc.put("putdouble", "void");
-        libFunc.put("getchar", "int"); libFunc.put("putint", "void"); libFunc.put("putchar", "void");
-        libFunc.put("putstr", "void"); libFunc.put("putln", "void");
+        libFunc.put("getint","int"); libFunc.put("getdouble","double"); libFunc.put("putdouble","void");
+        libFunc.put("getchar","int"); libFunc.put("putint","void"); libFunc.put("putchar","void");
+        libFunc.put("putstr","void"); libFunc.put("putln","void");
     }
 
     public String funcName;
-    public int returnSlots = 0;
+    public int returnSlots=0;
     public String returnType;
     public boolean returned;
-    public int paramSlots = 0;
+    public int paramSlots=0;
     public ArrayList<FunctionParam> paramTable = new ArrayList<>();
-    public int locSlots = 0;
-
+    public int locSlots=0;
     public ArrayList<Instruction> funcBody = new ArrayList<>();
-
     public FunctionList(String fnName){
         this.funcName = fnName;
     }
 
+    public String getFuncName() {
+        return funcName;
+    }
+    public int getReturnSlots() {
+        return returnSlots;
+    }
+    public int getParamSlots() {
+        return paramSlots;
+    }
+    public int getLocSlots() {
+        return locSlots;
+    }
+    public ArrayList<Instruction> getFuncBody() {
+        return funcBody;
+    }
+    public String getReturnType() {
+        return returnType;
+    }
+    public ArrayList<FunctionParam> getParamTable() {
+        return paramTable;
+    }
+    public boolean getIsReturned() {
+        return returned;
+    }
+    public int getFuncBodyCount(){
+        return this.funcBody.size();
+    }
+    public int getFuncNumber(){
+        return MidCode.getMidCode().getFuncNumber(this.funcName);
+    }
+    public void setFuncName(String funcName) {
+        this.funcName = funcName;
+    }
+    public void setReturnSlots(int returnSlots) {
+        this.returnSlots = returnSlots;
+    }
+    public void setParamSlots(int paramSlots) {
+        this.paramSlots = paramSlots;
+    }
+    public void setLocSlots(int locSlots) {
+        this.locSlots = locSlots;
+    }
+    public void setFuncBody(ArrayList<Instruction> funcBody) {
+        this.funcBody = funcBody;
+    }
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+    public void setParamTable(ArrayList<FunctionParam> paramTable) {
+        this.paramTable = paramTable;
+    }
+    public void setReturned(boolean returned) {
+        this.returned = returned;
+    }
 
-    /**
-     * 函数体中加入一条指令
-     * @param i 指令
-     */
     public void addInstruction(Instruction i){
         funcBody.add(i);
     }
 
     public void removeInstruction(int i){funcBody.remove(i);}
 
-    /**
-     * 返回当前指令长度 用于跳转
-     * @return 长度
-     */
     public int getInstructionsLength() {
         return funcBody.size();
     }
 
-    /**
-     * 向指定位置插入指令
-     * @param i 位置
-     * @param index 指令
-
-    public void insertInstruction(Instruction i, int index){
-        fnBody.add(index, i);
-    }*/
-    /**
-     * 设置某条指令的返回值，用于设置br指令的跳转距离
-     * @param index
-     * @param i
-     */
     public void setBrInstructionValue(int index, Instruction i){
         funcBody.set(index,i);
     }
 
-    /**
-     * 添加函数参数
-     * @param paramName
-     * @param isConst
-     * @param paramType
-     * @param curPos
-     * @throws AnalyzeError
-     */
     public void addParam(String paramName, boolean isConst, String paramType, Pos curPos) throws AnalyzeError {
         for(FunctionParam f: paramTable){
             if(f.getParamName().equals(paramName))
@@ -81,36 +104,20 @@ public class FunctionList {
         paramSlots ++;
     }
 
-
-    /**
-     * 添加一个局部变量
-     */
     public void addLoc(){
         this.locSlots ++;
     }
 
-    /**
-     * 获取下一个局部变量的栈偏移
-     * @return
-     */
     public int getNextLocOffset(){
         return this.locSlots - 1;
     }
 
-    /**
-     * 设置返回值类型
-     */
     public void setReturn(String ty){
         if(!ty.equals("void"))
             this.returnSlots = 1;
         this.returnType = ty;
     }
 
-    /**
-     * 获取函数参数的栈偏移
-     * @param name
-     * @return
-     */
     public int getParamOffset(String name){
         int i=0;
         for(FunctionParam f: paramTable){
@@ -122,11 +129,6 @@ public class FunctionList {
         return -1;
     }
 
-    /**
-     * 根据变量序列获取变量类型，用于检测变量类型是否符合
-     * @param offset
-     * @return
-     */
     public FunctionParam getOffsetParam(int offset){
         return paramTable.get(offset);
     }
@@ -135,12 +137,6 @@ public class FunctionList {
         return this.returnSlots > 0;
     }
 
-    /**
-     * 变量和函数参数不重复
-     * @param name 变量名
-     * @param curPos 位置
-     * @throws AnalyzeError 重复
-     */
     public void notInFnParams(String name, Pos curPos) throws AnalyzeError{
         for(FunctionParam f: paramTable){
             if(f.getParamName().equals(name))
@@ -148,12 +144,6 @@ public class FunctionList {
         }
     }
 
-    /**
-     * 检查函数传入参数类型是否合法
-     * @param curPos 当前位置
-     * @param params 调用参数的类型
-     * @throws AnalyzeError 类型不匹配或数量不匹配
-     */
     public void checkParams(Pos curPos, ArrayList<String> params) throws AnalyzeError {
         if(params.size() != this.paramSlots)
             throw new AnalyzeError(ErrorCode.ExpectedToken, curPos);
@@ -164,93 +154,53 @@ public class FunctionList {
         }
     }
 
-    /**
-     * 设置为已返回
-     */
     public void returnFn(String ty, Pos curPos) throws AnalyzeError{
-        if(!ty.equals(this.returnType)){
+        if(ty.equals(this.returnType)==false){
             throw new AnalyzeError(ErrorCode.ExpectedToken, curPos);
         }
         this.returned = true;
     }
 
-
-    public String getFuncName() {
-        return funcName;
+    public boolean checkReturnRoutes(){
+        if(this.getReturnType().equals("void")){
+            if(!this.funcBody.get(this.funcBody.size()-1).getOpt().equals(Operation.Ret)){
+                addInstruction(new Instruction(Operation.Ret));
+            }
+            return true;
+        }
+        else {
+            return DFS(0,new HashSet<Integer>());
+        }
     }
 
-    public void setFuncName(String fnName) {
-        this.funcName = fnName;
+    private boolean DFS(int i,HashSet<Integer> routes){
+        if( i>funcBody.size()-1){
+            return false;
+        }
+        else if(routes.contains(i)){
+            return true;
+        }
+        else if(funcBody.get(i).getOpt().equals(Operation.BrTrue)){
+            routes.add(i);
+            boolean ret=DFS(i+1,routes);
+            return ret&&DFS(i+2,routes);
+        }
+        else if(funcBody.get(i).getOpt().equals(Operation.Br)){
+            routes.add(i);
+            return DFS(i+(int)funcBody.get(i).getX()+1,routes);
+        }
+        else if(funcBody.get(i).getOpt().equals(Operation.Ret)){
+            return true;
+        }
+        else{
+            routes.add(i);
+            return DFS(i+1,routes);
+        }
     }
 
-    public int getReturnSlots() {
-        return returnSlots;
-    }
-
-    public void setReturnSlots(int returnSlots) {
-        this.returnSlots = returnSlots;
-    }
-
-    public int getParamSlots() {
-        return paramSlots;
-    }
-
-    public void setParamSlots(int paramSlots) {
-        this.paramSlots = paramSlots;
-    }
-
-    public int getLocSlots() {
-        return locSlots;
-    }
-
-    public void setLocSlots(int locSlots) {
-        this.locSlots = locSlots;
-    }
-
-    public ArrayList<Instruction> getFuncBody() {
-        return funcBody;
-    }
-
-    public void setFuncBody(ArrayList<Instruction> fnBody) {
-        this.funcBody = fnBody;
-    }
-
-    public String getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(String returnType) {
-        this.returnType = returnType;
-    }
-
-    public ArrayList<FunctionParam> getParamTable() {
-        return paramTable;
-    }
-
-    public void setParamTable(ArrayList<FunctionParam> paramTable) {
-        this.paramTable = paramTable;
-    }
-
-    public boolean isReturned() {
-        return returned;
-    }
-
-    public void setReturned(boolean returned) {
-        this.returned = returned;
-    }
-
-    public int getFuncBodyCount(){
-        return this.funcBody.size();
-    }
-
-    public int getFnNumber(){
-        return MidCode.getMidCode().getFnNumber(this.funcName);
-    }
-
-    @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("fn [").append(MidCode.getMidCode().getFnNumber(this.funcName)).
+        StringBuilder sb=new StringBuilder();
+        sb.append("fn [").append(MidCode.getMidCode().getFuncNumber(this.funcName)).
                 append("] ").append(locSlots).append(" ").append(paramSlots).append(" -> ").
                 append(returnSlots).append(" {\n");
 
@@ -263,46 +213,5 @@ public class FunctionList {
         sb.append("}\n");
 
         return sb.toString();
-    }
-
-    /**
-     * 检查是否所有的路径都有返回
-     * @return 是否有返回 true有 false没有
-     */
-    public boolean checkReturnRoutes(){
-        if(this.getReturnType().equals("void")){
-            if(!this.funcBody.get(this.funcBody.size()-1).getOpt().equals(Operation.Ret)){
-                addInstruction(new Instruction(Operation.Ret));
-            }
-            return true;
-        }
-        else {
-            return dfs(0, new HashSet<Integer>());
-        }
-    }
-
-    private boolean dfs(int i, HashSet<Integer> routes){
-        if( i > funcBody.size()-1){
-            return false;
-        }
-        else if(routes.contains(i)){
-            return true;
-        }
-        else if(funcBody.get(i).getOpt().equals(Operation.BrTrue)){
-            routes.add(i);
-            boolean ret = dfs(i+1, routes);
-            return ret && dfs(i+2, routes);
-        }
-        else if(funcBody.get(i).getOpt().equals(Operation.Br)){
-            routes.add(i);
-            return dfs(i+funcBody.get(i).getIntX()+1, routes);
-        }
-        else if(funcBody.get(i).getOpt().equals(Operation.Ret)){
-            return true;
-        }
-        else{
-            routes.add(i);
-            return dfs(i+1, routes);
-        }
     }
 }

@@ -143,7 +143,7 @@ public class MidCode {
         return -1;
     }
 
-    public int getFnNumber(String fnName) {
+    public int getFuncNumber(String fnName) {
         int i=0;
         for(String s: globalSymbol){
             if(s.equals(fnName)){
@@ -187,21 +187,9 @@ public class MidCode {
             sb.append(g.getVarName()).append('\n');
         }
 
-        /*
-        for(FnInstruct f : fnList){
-            sb.append(f.getFnName()).append('\n');
-        }*/
-
-
-
         for(int i=this.getGlobalVarNum(); i<this.globalSymbol.size(); i++){
             sb.append(this.globalSymbol.get(i)).append('\n');
         }
-/*
-        for(String s:globalSymbol){
-            sb.append(s).append("\n");
-        }
-*/
 
         sb.append("\n");
         for(FunctionList f : funcList){

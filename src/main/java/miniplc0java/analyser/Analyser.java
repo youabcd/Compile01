@@ -322,7 +322,7 @@ public final class Analyser {
         }
         // 查找函数参数表
         else if ((offset=(func.getParamOffset(name))) >= 0) {
-            return func.getOffsetParam(offset).isConst();
+            return func.getOffsetParam(offset).getConst();
         }
         // 查找变量表
         else {
@@ -1008,7 +1008,7 @@ public final class Analyser {
         ArrayList<Integer> continueList=new ArrayList<>();
         ArrayList<Integer> breakList=new ArrayList<>();
         AnalyseBlock(func,0,continueList,breakList);
-        if(func.isReturned()){
+        if(func.getIsReturned()){
             if(!func.checkReturnRoutes()){
                 throw new AnalyzeError(ErrorCode.ExpectedToken, peek().getStartPos());
             }

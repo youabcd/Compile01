@@ -9,18 +9,16 @@ public class GlobalSymbol {
         this.isConst = isConst;
     }
 
-    public boolean isConst() {
+    public boolean getIsConst() {
         return isConst;
+    }
+    public String getVarName() {
+        return varName;
     }
 
     public void setConst(boolean aConst) {
         isConst = aConst;
     }
-
-    public String getVarName() {
-        return varName;
-    }
-
     public void setVarName(String varName) {
         this.varName = varName;
     }
