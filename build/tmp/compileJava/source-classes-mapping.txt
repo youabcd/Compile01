@@ -1,9 +1,8 @@
 miniplc0java/tokenizer/TokenType.java
  miniplc0java.tokenizer.TokenType
  miniplc0java.tokenizer.TokenType$1
-miniplc0java/vm/MiniVm.java
- miniplc0java.vm.MiniVm
- miniplc0java.vm.MiniVm$1
+miniplc0java/instruction/WriteFile.java
+ miniplc0java.instruction.WriteFile
 miniplc0java/error/TokenizeError.java
  miniplc0java.error.TokenizeError
 miniplc0java/error/ErrorCode.java
@@ -41,5 +40,3 @@ miniplc0java/instruction/Operation.java
  miniplc0java.instruction.Operation
 miniplc0java/analyser/SymbolEntry.java
  miniplc0java.analyser.SymbolEntry
-miniplc0java/instruction/WriteFile.java
- miniplc0java.instruction.WriteFile
