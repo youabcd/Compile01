@@ -56,6 +56,26 @@ public class FunctionList {
     public int getFuncNumber(){
         return MidCode.getMidCode().getFuncNumber(this.funcName);
     }
+    public int getNextLocOffset(){
+        return this.locSlots-1;
+    }
+    public int getInstructionsLength() {
+        return funcBody.size();
+    }
+    public FunctionParam getOffsetParam(int offset){
+        return paramTable.get(offset);
+    }
+    public int getParamOffset(String name){
+        int i=0;
+        for(FunctionParam f: paramTable){
+            if(f.getParamName().equals(name)) {
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }
+
     public void setFuncName(String funcName) {
         this.funcName=funcName;
     }
@@ -80,19 +100,17 @@ public class FunctionList {
     public void setReturned(boolean returned) {
         this.returned=returned;
     }
+    public void setBrInstructionValue(int index, Instruction i){
+        funcBody.set(index,i);
+    }
+    public void setReturn(String ty){
+        if(!ty.equals("void"))
+            this.returnSlots = 1;
+        this.returnType = ty;
+    }
 
     public void addInstruction(Instruction i){
         funcBody.add(i);
-    }
-
-    public void removeInstruction(int i){funcBody.remove(i);}
-
-    public int getInstructionsLength() {
-        return funcBody.size();
-    }
-
-    public void setBrInstructionValue(int index, Instruction i){
-        funcBody.set(index,i);
     }
 
     public void addParam(String paramName, boolean isConst, String paramType, Pos curPos) throws AnalyzeError {
@@ -106,35 +124,6 @@ public class FunctionList {
 
     public void addLoc(){
         this.locSlots ++;
-    }
-
-    public int getNextLocOffset(){
-        return this.locSlots-1;
-    }
-
-    public void setReturn(String ty){
-        if(!ty.equals("void"))
-            this.returnSlots = 1;
-        this.returnType = ty;
-    }
-
-    public int getParamOffset(String name){
-        int i=0;
-        for(FunctionParam f: paramTable){
-            if(f.getParamName().equals(name)) {
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
-
-    public FunctionParam getOffsetParam(int offset){
-        return paramTable.get(offset);
-    }
-
-    public boolean haveRet(){
-        return this.returnSlots>0;
     }
 
     public void notInFnParams(String name, Pos curPos) throws AnalyzeError{
@@ -152,6 +141,12 @@ public class FunctionList {
                 throw new AnalyzeError(ErrorCode.StreamError, curPos);
             }
         }
+    }
+
+    public void removeInstruction(int i){funcBody.remove(i);}
+
+    public boolean haveRet(){
+        return this.returnSlots>0;
     }
 
     public void returnFn(String ty, Pos curPos) throws AnalyzeError{
@@ -172,7 +167,6 @@ public class FunctionList {
             return DFS(0,new HashSet<Integer>());
         }
     }
-
     private boolean DFS(int i,HashSet<Integer> routes){
         if( i>funcBody.size()-1){
             return false;

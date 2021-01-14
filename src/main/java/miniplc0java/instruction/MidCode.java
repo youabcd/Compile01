@@ -36,9 +36,25 @@ public class MidCode {
     public int getNextGlobalVarOffset(){
         return globaList.size();
     }
-
-    public void addGlobalVar(GlobalSymbol g){
-        globaList.add(g);
+    public int getFnAddress(String funcName) {
+        int i=1;
+        for(FunctionList f:funcList){
+            if(f.getFuncName().equals(funcName)){
+                return i;
+            }
+            i++;
+        }
+        return -1;
+    }//获取函数的偏移量，从1开始
+    public int getFuncNumber(String fnName) {
+        int i=0;
+        for(String s:globalSymbol){
+            if(s.equals(fnName)){
+                return i;
+            }
+            i++;
+        }
+        return -1;
     }
 
     /*获取全局符号表中某个符号的位置，不存在则返回-1*/
@@ -50,6 +66,10 @@ public class MidCode {
         if(globalSymbol.indexOf(name)>=0){
             throw new AnalyzeError(ErrorCode.DuplicateDeclaration,curPos);
         }
+    }
+
+    public void addGlobalVar(GlobalSymbol g){
+        globaList.add(g);
     }
 
     public void addGlobalSymbol(String name, Pos curPos) throws AnalyzeError{
@@ -67,11 +87,6 @@ public class MidCode {
         globalSymbol.add(globalVarNum++, name);
     }
 
-    /* 添加一个函数块*/
-    public void addFunction(FunctionList f){
-        funcList.add(f);
-    }
-
     /*在全局符号表中插入一条库函数的记录，不会插入到fn列表中*/
     public int insertLibFunctionBefore(String fnName, String libFn){
         int i=0;
@@ -85,28 +100,12 @@ public class MidCode {
         return i;
     }
 
-    /*获取函数的偏移量，从1开始*/
-    public int getFnAddress(String funcName) {
-        int i=1;
-        for(FunctionList f:funcList){
-            if(f.getFuncName().equals(funcName)){
-                return i;
-            }
-            i++;
-        }
-        return -1;
+    /* 添加一个函数块*/
+    public void addFunction(FunctionList f){
+        funcList.add(f);
     }
 
-    public int getFuncNumber(String fnName) {
-        int i=0;
-        for(String s:globalSymbol){
-            if(s.equals(fnName)){
-                return i;
-            }
-            i++;
-        }
-        return -1;
-    }
+
 
     @Override
     public String toString(){
