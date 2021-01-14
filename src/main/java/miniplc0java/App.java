@@ -9,7 +9,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-
 import miniplc0java.analyser.Analyser;
 import miniplc0java.error.CompileError;
 import miniplc0java.instruction.Instruction;
@@ -23,8 +22,6 @@ import miniplc0java.tokenizer.StringIter;
 import miniplc0java.tokenizer.Token;
 import miniplc0java.tokenizer.TokenType;
 import miniplc0java.tokenizer.Tokenizer;
-
-import miniplc0java.vm.MiniVm;
 import net.sourceforge.argparse4j.*;
 import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentAction;
